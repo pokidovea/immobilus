@@ -1,0 +1,3 @@
+
+test:
+	nosetests ./tests/
