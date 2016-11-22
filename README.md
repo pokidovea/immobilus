@@ -3,3 +3,53 @@
 [![build](https://secure.travis-ci.org/pokidovea/immobilus.svg?branch=master)](https://travis-ci.org/pokidovea/immobilus)
 
 A simple time freezing tool for python tests.
+
+## Usage
+It is necessary to import *immobilus* first time before import of datetime.
+For example, place `import immobilus` into root conftest.py file if you use pytest. Then you can import it even after datetime imports.
+
+#### As context manager
+```python
+from immobilus import immobilus
+from datetime import datetime
+
+
+def test_nested_context_manager():
+
+    dt1 = datetime(2016, 1, 1)
+    dt2 = datetime(2014, 10, 12)
+    assert datetime.utcnow() != dt1
+    assert datetime.utcnow() != dt2
+
+    with immobilus('2016-01-01'):
+        assert datetime.utcnow() == dt1
+
+        with immobilus('2014-10-12'):
+            assert datetime.utcnow() == dt2
+
+        assert datetime.utcnow() == dt1
+
+    assert datetime.utcnow() != dt1
+    assert datetime.utcnow() != dt2
+```
+
+
+#### As decorator
+```python
+from immobilus import immobilus
+from datetime import datetime
+
+
+def test_decorator():
+
+    dt = datetime(2016, 1, 1)
+    assert datetime.utcnow() != dt
+
+    @immobilus('2016-01-01')
+    def test():
+        assert datetime.utcnow() == dt
+
+    test()
+
+    assert datetime.utcnow() != dt
+```
