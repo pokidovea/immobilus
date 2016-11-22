@@ -6,7 +6,7 @@ A simple time freezing tool for python tests.
 
 ## Usage
 It is necessary to import *immobilus* first time before import of datetime.
-For example, place `import immobilus` into root conftest.py file if you use pytest. Then you can import it even after datetime imports.
+For example, place `import immobilus` into root `conftest.py` file if you use [pytest](https://pypi.python.org/pypi/pytest). Then you can import it even after datetime imports.
 
 #### As context manager
 ```python
