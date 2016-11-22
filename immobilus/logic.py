@@ -1,29 +1,25 @@
 import sys
-import os
 from datetime import datetime
 from functools import wraps
 
 from dateutil import parser
 
-
-class DatetimeMeta(type):
-
-    def __new__(cls, name, bases, dct):
-        klass = super(DatetimeMeta, cls).__new__(cls, name, bases, dct)
-        setattr(sys.modules['datetime'], 'datetime', klass)
-        return klass
+TIME_TO_FREEZE = None
 
 
 class Datetime(datetime):
 
-    __metaclass__ = DatetimeMeta
-
     @classmethod
     def utcnow(cls):
-        if 'MYDATE' in os.environ:
-            return parser.parse(os.getenv('MYDATE'))
+        global TIME_TO_FREEZE
+
+        if TIME_TO_FREEZE is not None:
+            return parser.parse(TIME_TO_FREEZE)
         else:
             return datetime.utcnow()
+
+
+setattr(sys.modules['datetime'], 'datetime', Datetime)
 
 
 class immobilus(object):
@@ -43,7 +39,13 @@ class immobilus(object):
         return wrapper
 
     def __enter__(self):
-        os.environ['MYDATE'] = self.time_to_freeze
+        global TIME_TO_FREEZE
+
+        self.previous_value = TIME_TO_FREEZE
+        TIME_TO_FREEZE = self.time_to_freeze
+
+        return self.time_to_freeze
 
     def __exit__(self, *args):
-        os.environ.pop('MYDATE')
+        global TIME_TO_FREEZE
+        TIME_TO_FREEZE = self.previous_value
