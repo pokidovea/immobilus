@@ -9,7 +9,7 @@ setup(
     author='Eugene Pokidov',
     author_email='pokidovea@gmail',
     url='https://github.com/pokidovea/immobilus',
-    packages=['.'],
+    packages=['immobilus'],
     install_requires=['python-dateutil'],
     include_package_data=True,
     license='Apache 2.0',
