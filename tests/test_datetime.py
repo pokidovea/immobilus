@@ -1,47 +1,52 @@
+import pytest
+
 from immobilus import immobilus
 
 from datetime import datetime
 
 
-def test_decorator():
+@pytest.mark.parametrize('time_function', [datetime.utcnow, datetime.now])
+def test_decorator(time_function):
 
     dt = datetime(2016, 1, 1)
-    assert datetime.utcnow() != dt
+    assert time_function() != dt
 
     @immobilus('2016-01-01')
     def test():
-        assert datetime.utcnow() == dt
+        assert time_function() == dt
 
     test()
 
-    assert datetime.utcnow() != dt
+    assert time_function() != dt
 
 
-def test_context_manager():
+@pytest.mark.parametrize('time_function', [datetime.utcnow, datetime.now])
+def test_context_manager(time_function):
 
     dt = datetime(2016, 1, 1)
-    assert datetime.utcnow() != dt
+    assert time_function() != dt
 
     with immobilus('2016-01-01'):
-        assert datetime.utcnow() == dt
+        assert time_function() == dt
 
-    assert datetime.utcnow() != dt
+    assert time_function() != dt
 
 
-def test_nested_context_manager():
+@pytest.mark.parametrize('time_function', [datetime.utcnow, datetime.now])
+def test_nested_context_manager(time_function):
 
     dt1 = datetime(2016, 1, 1)
     dt2 = datetime(2014, 10, 12)
-    assert datetime.utcnow() != dt1
-    assert datetime.utcnow() != dt2
+    assert time_function() != dt1
+    assert time_function() != dt2
 
     with immobilus('2016-01-01'):
-        assert datetime.utcnow() == dt1
+        assert time_function() == dt1
 
         with immobilus('2014-10-12'):
-            assert datetime.utcnow() == dt2
+            assert time_function() == dt2
 
-        assert datetime.utcnow() == dt1
+        assert time_function() == dt1
 
-    assert datetime.utcnow() != dt1
-    assert datetime.utcnow() != dt2
+    assert time_function() != dt1
+    assert time_function() != dt2
