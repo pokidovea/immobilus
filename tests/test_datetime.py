@@ -1,8 +1,8 @@
-import pytest
-
 from immobilus import immobilus
 
 from datetime import datetime
+
+import pytest
 
 
 @pytest.mark.parametrize('time_function', [datetime.utcnow, datetime.now])

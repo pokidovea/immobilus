@@ -1,4 +1,5 @@
 import sys
+import time
 from datetime import datetime
 from functools import wraps
 
@@ -7,28 +8,67 @@ from dateutil import parser
 TIME_TO_FREEZE = None
 
 
-class Datetime(datetime):
+original_time = time.time
+
+
+def fake_time():
+    if TIME_TO_FREEZE is not None:
+        return TIME_TO_FREEZE.timestamp()
+    else:
+        return original_time()
+
+
+class DatetimeMeta(type):
+
+    @classmethod
+    def __instancecheck__(self, obj):
+        return isinstance(obj, datetime)
+
+
+class FakeDatetime(datetime):
+
+    __metaclass__ = DatetimeMeta
+
+    def __add__(self, other):
+        result = datetime.__add__(self, other)
+
+        if result is NotImplemented:
+            return result
+
+        return self.from_datetime(result)
+
+    def __sub__(self, other):
+        result = datetime.__sub__(self, other)
+
+        if result is NotImplemented:
+            return result
+
+        if isinstance(result, datetime):
+            return self.from_datetime(result)
+        else:
+            return result
 
     @classmethod
     def utcnow(cls):
         global TIME_TO_FREEZE
 
-        if TIME_TO_FREEZE is not None:
-            return TIME_TO_FREEZE
-        else:
-            return datetime.utcnow()
+        dt = TIME_TO_FREEZE or datetime.utcnow()
+        return cls.from_datetime(dt)
 
     @classmethod
     def now(cls):
         global TIME_TO_FREEZE
 
-        if TIME_TO_FREEZE is not None:
-            return TIME_TO_FREEZE
-        else:
-            return datetime.now()
+        dt = TIME_TO_FREEZE or datetime.now()
+        return cls.from_datetime(dt)
+
+    @classmethod
+    def from_datetime(cls, dt):
+        return cls.fromtimestamp(dt.timestamp())
 
 
-setattr(sys.modules['datetime'], 'datetime', Datetime)
+setattr(sys.modules['datetime'], 'datetime', FakeDatetime)
+setattr(sys.modules['time'], 'time', fake_time)
 
 
 class immobilus(object):
