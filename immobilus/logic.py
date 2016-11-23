@@ -11,9 +11,13 @@ TIME_TO_FREEZE = None
 original_time = time.time
 
 
+def datetime_to_timestamp(dt):
+    return time.mktime(dt.timetuple())
+
+
 def fake_time():
     if TIME_TO_FREEZE is not None:
-        return TIME_TO_FREEZE.timestamp()
+        return datetime_to_timestamp(TIME_TO_FREEZE)
     else:
         return original_time()
 
@@ -64,7 +68,7 @@ class FakeDatetime(datetime):
 
     @classmethod
     def from_datetime(cls, dt):
-        return cls.fromtimestamp(dt.timestamp())
+        return cls.fromtimestamp(datetime_to_timestamp(dt))
 
 
 setattr(sys.modules['datetime'], 'datetime', FakeDatetime)
