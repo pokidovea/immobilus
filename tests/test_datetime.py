@@ -50,3 +50,11 @@ def test_nested_context_manager(time_function):
 
     assert time_function() != dt1
     assert time_function() != dt2
+
+
+def test_datetime_each_time_must_be_different():
+    dt1 = datetime.utcnow()
+    dt2 = datetime.utcnow()
+
+    assert dt1 != dt2
+

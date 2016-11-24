@@ -68,7 +68,16 @@ class FakeDatetime(datetime):
 
     @classmethod
     def from_datetime(cls, dt):
-        return cls.fromtimestamp(datetime_to_timestamp(dt))
+        return cls(
+            dt.year,
+            dt.month,
+            dt.day,
+            dt.hour,
+            dt.minute,
+            dt.second,
+            dt.microsecond,
+            dt.tzinfo,
+        )
 
 
 setattr(sys.modules['datetime'], 'datetime', FakeDatetime)
