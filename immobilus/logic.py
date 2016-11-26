@@ -1,6 +1,6 @@
 import sys
 import time
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from functools import wraps
 
 from dateutil import parser
@@ -9,6 +9,7 @@ TIME_TO_FREEZE = None
 
 
 original_time = time.time
+original_localtime = time.localtime
 
 
 def datetime_to_timestamp(dt):
@@ -20,6 +21,16 @@ def fake_time():
         return datetime_to_timestamp(TIME_TO_FREEZE)
     else:
         return original_time()
+
+
+def fake_localtime(seconds=None):
+    if seconds is not None:
+        return original_localtime(seconds)
+
+    if TIME_TO_FREEZE is not None:
+        return (TIME_TO_FREEZE + timedelta(seconds=time.timezone)).timetuple()
+    else:
+        return original_localtime()
 
 
 class DateMeta(type):
@@ -129,6 +140,7 @@ class FakeDatetime(datetime):
 setattr(sys.modules['datetime'], 'date', FakeDate)
 setattr(sys.modules['datetime'], 'datetime', FakeDatetime)
 setattr(sys.modules['time'], 'time', fake_time)
+setattr(sys.modules['time'], 'localtime', fake_localtime)
 
 
 class immobilus(object):
