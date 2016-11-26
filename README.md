@@ -12,8 +12,7 @@ A simple time freezing tool for python tests. It mocks:
 * time.strftime()
 
 ## Usage
-It is necessary to import *immobilus* first time before import of datetime.
-For example, place `import immobilus` into root `conftest.py` file if you use [pytest](https://pypi.python.org/pypi/pytest). Then you can import it even after datetime imports.
+It is necessary to import *immobilus* first time before import of time functions. For example, place `import immobilus` into root `conftest.py` file if you use [pytest](https://pypi.python.org/pypi/pytest). Then you can import it even after datetime imports.
 
 #### As context manager
 ```python
