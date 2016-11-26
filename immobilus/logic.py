@@ -1,6 +1,6 @@
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, date
 from functools import wraps
 
 from dateutil import parser
@@ -20,6 +20,52 @@ def fake_time():
         return datetime_to_timestamp(TIME_TO_FREEZE)
     else:
         return original_time()
+
+
+class DateMeta(type):
+
+    @classmethod
+    def __instancecheck__(self, obj):
+        return isinstance(obj, date)
+
+
+class FakeDate(date):
+
+    __metaclass__ = DateMeta
+
+    def __add__(self, other):
+        result = datetime.__add__(self, other)
+
+        if result is NotImplemented:
+            return result
+
+        return self.from_datetime(result)
+
+    def __sub__(self, other):
+        result = datetime.__sub__(self, other)
+
+        if result is NotImplemented:
+            return result
+
+        if isinstance(result, datetime):
+            return self.from_datetime(result)
+        else:
+            return result
+
+    @classmethod
+    def today(cls):
+        global TIME_TO_FREEZE
+
+        _date = TIME_TO_FREEZE or date.today()
+        return cls.from_datetime(_date)
+
+    @classmethod
+    def from_datetime(cls, _date):
+        return cls(
+            _date.year,
+            _date.month,
+            _date.day,
+        )
 
 
 class DatetimeMeta(type):
@@ -56,30 +102,31 @@ class FakeDatetime(datetime):
     def utcnow(cls):
         global TIME_TO_FREEZE
 
-        dt = TIME_TO_FREEZE or datetime.utcnow()
-        return cls.from_datetime(dt)
+        _datetime = TIME_TO_FREEZE or datetime.utcnow()
+        return cls.from_datetime(_datetime)
 
     @classmethod
     def now(cls):
         global TIME_TO_FREEZE
 
-        dt = TIME_TO_FREEZE or datetime.now()
-        return cls.from_datetime(dt)
+        _datetime = TIME_TO_FREEZE or datetime.now()
+        return cls.from_datetime(_datetime)
 
     @classmethod
-    def from_datetime(cls, dt):
+    def from_datetime(cls, _datetime):
         return cls(
-            dt.year,
-            dt.month,
-            dt.day,
-            dt.hour,
-            dt.minute,
-            dt.second,
-            dt.microsecond,
-            dt.tzinfo,
+            _datetime.year,
+            _datetime.month,
+            _datetime.day,
+            _datetime.hour,
+            _datetime.minute,
+            _datetime.second,
+            _datetime.microsecond,
+            _datetime.tzinfo,
         )
 
 
+setattr(sys.modules['datetime'], 'date', FakeDate)
 setattr(sys.modules['datetime'], 'datetime', FakeDatetime)
 setattr(sys.modules['time'], 'time', fake_time)
 
