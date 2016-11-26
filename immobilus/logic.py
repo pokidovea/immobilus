@@ -11,6 +11,7 @@ TIME_TO_FREEZE = None
 original_time = time.time
 original_gmtime = time.gmtime
 original_localtime = time.localtime
+original_strftime = time.strftime
 
 
 def datetime_to_timestamp(dt):
@@ -42,6 +43,16 @@ def fake_gmtime(seconds=None):
         return TIME_TO_FREEZE.timetuple()
     else:
         return original_gmtime()
+
+
+def fake_strftime(format, t=None):
+    if t is not None:
+        return original_strftime(format, t)
+
+    if TIME_TO_FREEZE is not None:
+        return original_strftime(format, TIME_TO_FREEZE.timetuple())
+    else:
+        return original_strftime(format)
 
 
 class DateMeta(type):
@@ -153,6 +164,7 @@ setattr(sys.modules['datetime'], 'datetime', FakeDatetime)
 setattr(sys.modules['time'], 'time', fake_time)
 setattr(sys.modules['time'], 'localtime', fake_localtime)
 setattr(sys.modules['time'], 'gmtime', fake_gmtime)
+setattr(sys.modules['time'], 'strftime', fake_strftime)
 
 
 class immobilus(object):
