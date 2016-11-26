@@ -2,7 +2,14 @@
 
 [![build](https://secure.travis-ci.org/pokidovea/immobilus.svg?branch=master)](https://travis-ci.org/pokidovea/immobilus)
 
-A simple time freezing tool for python tests.
+A simple time freezing tool for python tests. It mocks:
+* datetime.date.today()
+* datetime.datetime.now()
+* datetime.datetime.utcnow()
+* time.time()
+* time.gmtime()
+* time.localtime()
+* time.strftime()
 
 ## Usage
 It is necessary to import *immobilus* first time before import of datetime.
