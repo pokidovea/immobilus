@@ -1,5 +1,3 @@
-from contextlib import contextmanager
-
 from immobilus import immobilus
 from immobilus.logic import datetime_to_timestamp
 
@@ -25,17 +23,7 @@ def test_ignore_immobilus_when_seconds_are_set():
         assert time_struct.tm_isdst == 0
 
 
-@contextmanager
-def set_timezone(new_timezone):
-    original_timezone = time.timezone
-    time.timezone = new_timezone
-
-    yield
-
-    time.timezone = original_timezone
-
-
-def test_seconds_are_not_set():
+def test_seconds_are_not_set(set_timezone):
     with set_timezone(-10800):
         with immobilus('2015-11-16 21:35:16'):
             time_struct = time.localtime()
