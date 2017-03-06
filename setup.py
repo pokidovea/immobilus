@@ -7,7 +7,7 @@ setup(
     version='0.2.1',
     description='Say `Immobilus!` to freeze your tests',
     author='Eugene Pokidov',
-    author_email='pokidovea@gmail',
+    author_email='pokidovea@gmail.com',
     url='https://github.com/pokidovea/immobilus',
     packages=['immobilus'],
     install_requires=['python-dateutil'],
