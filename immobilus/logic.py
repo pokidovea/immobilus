@@ -1,6 +1,6 @@
 import sys
 import time
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, tzinfo
 from functools import wraps
 
 from dateutil import parser
@@ -140,9 +140,14 @@ class FakeDatetime(datetime):
 
     @classmethod
     def now(cls, tz=None):
+        assert tz is None or isinstance(tz, tzinfo)
         global TIME_TO_FREEZE
 
-        _datetime = TIME_TO_FREEZE or datetime.now(tz)
+        _datetime = TIME_TO_FREEZE or datetime.now()
+
+        if tz:
+            _datetime = tz.localize(_datetime)
+
         return cls.from_datetime(_datetime)
 
     @classmethod

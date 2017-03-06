@@ -1,5 +1,6 @@
 from immobilus import immobilus
 
+import pytz
 from datetime import datetime
 
 import pytest
@@ -58,3 +59,12 @@ def test_datetime_each_time_must_be_different():
 
     assert dt1 != dt2
 
+
+def test_datetime_now_with_timezone_on_py3():
+    dt = datetime.now(tz=pytz.utc)
+
+    with immobilus('2016-01-01 13:54'):
+        dt1 = datetime.now(tz=pytz.utc)
+
+    assert dt.tzinfo == pytz.utc
+    assert dt1.tzinfo == pytz.utc
