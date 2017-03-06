@@ -139,10 +139,10 @@ class FakeDatetime(datetime):
         return cls.from_datetime(_datetime)
 
     @classmethod
-    def now(cls):
+    def now(cls, tz=None):
         global TIME_TO_FREEZE
 
-        _datetime = TIME_TO_FREEZE or datetime.now()
+        _datetime = TIME_TO_FREEZE or datetime.now(tz)
         return cls.from_datetime(_datetime)
 
     @classmethod
