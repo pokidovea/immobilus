@@ -143,10 +143,13 @@ class FakeDatetime(datetime):
         assert tz is None or isinstance(tz, tzinfo)
         global TIME_TO_FREEZE
 
-        _datetime = TIME_TO_FREEZE or datetime.now()
-
-        if tz:
-            _datetime = tz.localize(_datetime)
+        if TIME_TO_FREEZE:
+            if TIME_TO_FREEZE.tzinfo:
+                _datetime = TIME_TO_FREEZE.astimezone(tz)
+            else:
+                _datetime = TIME_TO_FREEZE.replace(tzinfo=tz)
+        else:
+            _datetime = datetime.now(tz=tz)
 
         return cls.from_datetime(_datetime)
 
