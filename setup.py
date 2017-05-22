@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='immobilus',
-    version='0.2.4',
+    version='0.2.5',
     description='Say `Immobilus!` to freeze your tests',
     author='Eugene Pokidov',
     author_email='pokidovea@gmail.com',
@@ -22,5 +22,6 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 )
