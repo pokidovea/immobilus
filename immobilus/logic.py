@@ -5,6 +5,11 @@ from functools import wraps
 
 from dateutil import parser
 
+try:
+    import copy_reg as copyreg
+except ImportError:
+    import copyreg
+
 TIME_TO_FREEZE = None
 
 
@@ -12,6 +17,8 @@ original_time = time.time
 original_gmtime = time.gmtime
 original_localtime = time.localtime
 original_strftime = time.strftime
+original_date = date
+original_datetime = datetime
 
 
 def datetime_to_timestamp(dt):
@@ -101,6 +108,15 @@ class FakeDate(date):
         )
 
 
+def pickle_fake_date(datetime_):
+    # A pickle function for FakeDate
+    return FakeDate, (
+        datetime_.year,
+        datetime_.month,
+        datetime_.day,
+    )
+
+
 class DatetimeMeta(type):
 
     @classmethod
@@ -167,6 +183,20 @@ class FakeDatetime(datetime):
         )
 
 
+def pickle_fake_datetime(datetime_):
+    # A pickle function for FakeDatetime
+    return FakeDatetime, (
+        datetime_.year,
+        datetime_.month,
+        datetime_.day,
+        datetime_.hour,
+        datetime_.minute,
+        datetime_.second,
+        datetime_.microsecond,
+        datetime_.tzinfo,
+    )
+
+
 setattr(sys.modules['datetime'], 'date', FakeDate)
 setattr(sys.modules['datetime'], 'datetime', FakeDatetime)
 setattr(sys.modules['time'], 'time', fake_time)
@@ -193,6 +223,9 @@ class immobilus(object):
 
     def __enter__(self):
         global TIME_TO_FREEZE
+
+        copyreg.dispatch_table[original_datetime] = pickle_fake_datetime
+        copyreg.dispatch_table[original_date] = pickle_fake_date
 
         self.previous_value = TIME_TO_FREEZE
         TIME_TO_FREEZE = parser.parse(self.time_to_freeze)
