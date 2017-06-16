@@ -74,7 +74,7 @@ class FakeDate(date):
     __metaclass__ = DateMeta
 
     def __add__(self, other):
-        result = datetime.__add__(self, other)
+        result = date.__add__(self, other)
 
         if result is NotImplemented:
             return result
@@ -82,12 +82,12 @@ class FakeDate(date):
         return self.from_datetime(result)
 
     def __sub__(self, other):
-        result = datetime.__sub__(self, other)
+        result = date.__sub__(self, other)
 
         if result is NotImplemented:
             return result
 
-        if isinstance(result, datetime):
+        if isinstance(result, date):
             return self.from_datetime(result)
         else:
             return result

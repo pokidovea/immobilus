@@ -1,7 +1,7 @@
 from immobilus import immobilus
 
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytest
 
@@ -68,3 +68,15 @@ def test_datetime_now_with_timezone_on_py3():
 
     assert dt.tzinfo == pytz.utc
     assert dt1.tzinfo == pytz.utc
+
+
+def test_addition():
+    dt = datetime(2016, 1, 1, 10, 15)
+
+    assert dt + timedelta(days=1, hours=1, minutes=10) == datetime(2016, 1, 2, 11, 25)
+
+
+def test_subtraction():
+    dt = datetime(2016, 1, 2, 11, 25)
+
+    assert dt - timedelta(days=1, hours=1, minutes=10) == datetime(2016, 1, 1, 10, 15)

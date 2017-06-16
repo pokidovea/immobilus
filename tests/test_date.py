@@ -1,6 +1,6 @@
 from immobilus import immobilus
 
-from datetime import date
+from datetime import date, timedelta
 
 
 def test_decorator():
@@ -45,3 +45,15 @@ def test_nested_context_manager():
 
     assert date.today() != dt1
     assert date.today() != dt2
+
+
+def test_addition():
+    dt = date(2016, 1, 1)
+
+    assert dt + timedelta(days=1) == date(2016, 1, 2)
+
+
+def test_subtraction():
+    dt = date(2016, 1, 2)
+
+    assert dt - timedelta(days=1) == date(2016, 1, 1)
