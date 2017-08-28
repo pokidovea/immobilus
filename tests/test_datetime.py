@@ -86,3 +86,17 @@ def test_tz_offset():
     with immobilus('2016-01-01 13:54', tz_offset=3):
         dt = datetime.now()
         assert dt == datetime.utcnow() + timedelta(hours=3)
+
+
+def test_tz_offset_timezone_on_py3():
+    with immobilus('2016-01-01 13:54', tz_offset=3):
+        dt = datetime.now(tz=pytz.utc)
+
+        assert dt.year == (datetime.utcnow() + timedelta(hours=3)).year
+        assert dt.month == (datetime.utcnow() + timedelta(hours=3)).month
+        assert dt.day == (datetime.utcnow() + timedelta(hours=3)).day
+
+        assert dt.hour == (datetime.utcnow() + timedelta(hours=3)).hour
+        assert dt.minute == (datetime.utcnow() + timedelta(hours=3)).minute
+        assert dt.second == (datetime.utcnow() + timedelta(hours=3)).second
+        assert dt.tzinfo == pytz.utc
