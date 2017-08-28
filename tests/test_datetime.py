@@ -80,3 +80,9 @@ def test_subtraction():
     dt = datetime(2016, 1, 2, 11, 25)
 
     assert dt - timedelta(days=1, hours=1, minutes=10) == datetime(2016, 1, 1, 10, 15)
+
+
+def test_tz_offset():
+    with immobilus('2016-01-01 13:54', tz_offset=3):
+        dt = datetime.now()
+        assert dt == datetime.utcnow() + timedelta(hours=3)

@@ -57,3 +57,13 @@ def test_subtraction():
     dt = date(2016, 1, 2)
 
     assert dt - timedelta(days=1) == date(2016, 1, 1)
+
+
+def test_tz_offset():
+    with immobilus('2016-01-01 21:00'):
+        dt1 = date.today()
+
+    with immobilus('2016-01-01 21:00', tz_offset=3):
+        dt2 = date.today()
+
+    assert dt1 == dt2 - timedelta(days=1)

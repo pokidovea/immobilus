@@ -11,6 +11,7 @@ except ImportError:
     import copyreg
 
 TIME_TO_FREEZE = None
+TZ_OFFSET = 0
 
 
 original_time = time.time
@@ -96,7 +97,7 @@ class FakeDate(date):
     def today(cls):
         global TIME_TO_FREEZE
 
-        _date = TIME_TO_FREEZE or date.today()
+        _date = TIME_TO_FREEZE + timedelta(hours=TZ_OFFSET) if TIME_TO_FREEZE else date.today()
         return cls.from_datetime(_date)
 
     @classmethod
@@ -154,7 +155,7 @@ class FakeDatetime(datetime):
             if TIME_TO_FREEZE.tzinfo:
                 _datetime = TIME_TO_FREEZE.astimezone(tz)
             else:
-                _datetime = TIME_TO_FREEZE.replace(tzinfo=tz)
+                _datetime = TIME_TO_FREEZE.replace(tzinfo=tz) + timedelta(hours=TZ_OFFSET)
         else:
             _datetime = datetime.now(tz=tz)
 
@@ -210,8 +211,9 @@ setattr(sys.modules['time'], 'strftime', fake_strftime)
 
 class immobilus(object):
 
-    def __init__(self, time_to_freeze):
+    def __init__(self, time_to_freeze, tz_offset=0):
         self.time_to_freeze = time_to_freeze
+        self.tz_offset = tz_offset
 
     def __call__(self, func):
         return self._decorate_func(func)
@@ -226,12 +228,17 @@ class immobilus(object):
 
     def __enter__(self):
         global TIME_TO_FREEZE
+        global TZ_OFFSET
 
         self.previous_value = TIME_TO_FREEZE
         TIME_TO_FREEZE = parser.parse(self.time_to_freeze)
+        TZ_OFFSET = self.tz_offset
 
         return self.time_to_freeze
 
     def __exit__(self, *args):
         global TIME_TO_FREEZE
+        global TZ_OFFSET
+
         TIME_TO_FREEZE = self.previous_value
+        TZ_OFFSET = 0
