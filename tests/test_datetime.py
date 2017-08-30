@@ -52,6 +52,10 @@ def test_nested_context_manager(datetime_function):
     assert datetime_function() != dt1
     assert datetime_function() != dt2
 
+def test_datetime_object():
+    dt = datetime(1970, 1, 1)
+    with immobilus(dt):
+        assert datetime.now() == dt
 
 def test_datetime_each_time_must_be_different():
     dt1 = datetime.utcnow()
