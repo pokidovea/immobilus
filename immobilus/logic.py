@@ -24,7 +24,7 @@ original_datetime = datetime
 
 
 def datetime_to_timestamp(dt):
-    return calendar.timegm(dt.timetuple())
+    return float(calendar.timegm(dt.timetuple()))
 
 
 def fake_time():
