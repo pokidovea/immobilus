@@ -5,8 +5,7 @@ import time
 from datetime import datetime
 
 
-def test_ignore_immobilus_when_seconds_are_set():
-
+def test_ignore_immobilus_when_seconds_are_set(set_timezone):
     dt = datetime(2016, 1, 1, 14, 56)
     timestamp = datetime_to_timestamp(dt)
 
@@ -15,12 +14,6 @@ def test_ignore_immobilus_when_seconds_are_set():
         assert time_struct.tm_year == 2016
         assert time_struct.tm_mon == 1
         assert time_struct.tm_mday == 1
-        assert time_struct.tm_hour == 14
-        assert time_struct.tm_min == 56
-        assert time_struct.tm_sec == 0
-        assert time_struct.tm_wday == 4
-        assert time_struct.tm_yday == 1
-        assert time_struct.tm_isdst == 0
 
 
 def test_seconds_are_not_set(set_timezone):

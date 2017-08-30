@@ -1,3 +1,4 @@
+import calendar
 import sys
 import time
 from datetime import datetime, date, timedelta, tzinfo
@@ -23,7 +24,7 @@ original_datetime = datetime
 
 
 def datetime_to_timestamp(dt):
-    return time.mktime(dt.timetuple())
+    return calendar.timegm(dt.timetuple())
 
 
 def fake_time():
@@ -231,7 +232,12 @@ class immobilus(object):
         global TZ_OFFSET
 
         self.previous_value = TIME_TO_FREEZE
-        TIME_TO_FREEZE = self.time_to_freeze if isinstance(self.time_to_freeze, date) else parser.parse(self.time_to_freeze)
+
+        if isinstance(self.time_to_freeze, original_date):
+            TIME_TO_FREEZE = self.time_to_freeze
+        else:
+            TIME_TO_FREEZE = parser.parse(self.time_to_freeze)
+
         TZ_OFFSET = self.tz_offset
 
         return self.time_to_freeze
