@@ -8,7 +8,8 @@ from time import time
 def test_time_function():
 
     dt = datetime(1970, 1, 1)
-    assert datetime_to_timestamp(dt) == 0
+    assert datetime_to_timestamp(dt) == 0.0
+    assert type(datetime_to_timestamp(dt)) is float
     assert time() != datetime_to_timestamp(dt)
 
     with immobilus(dt):
