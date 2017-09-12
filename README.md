@@ -6,10 +6,12 @@ A simple time freezing tool for python tests. It mocks:
 * datetime.date.today()
 * datetime.datetime.now()
 * datetime.datetime.utcnow()
+* datetime.datetime.fromtimestamp()
 * time.time()
 * time.gmtime()
 * time.localtime()
 * time.strftime()
+* time.mktime()
 
 ## Usage
 It is necessary to import *immobilus* first time before import of time functions. For example, place `import immobilus` into root `conftest.py` file if you use [pytest](https://pypi.python.org/pypi/pytest). Then you can import it even after datetime imports.
@@ -59,3 +61,5 @@ def test_decorator():
 
     assert datetime.utcnow() != dt
 ```
+
+_Special thanks to Éloi Rivard (https://github.com/azmeuk) for contribution._

@@ -1,4 +1,5 @@
 import calendar
+import os
 import sys
 import time
 from datetime import datetime, date, timedelta, tzinfo
@@ -30,7 +31,7 @@ class UTC(tzinfo):
 
 utc = UTC()
 
-
+original_mktime = time.mktime
 original_time = time.time
 original_gmtime = time.gmtime
 original_localtime = time.localtime
@@ -78,6 +79,26 @@ def fake_strftime(format, t=None):
         return original_strftime(format, TIME_TO_FREEZE.timetuple())
     else:
         return original_strftime(format)
+
+
+def fake_mktime(timetuple):
+    if TIME_TO_FREEZE is not None:
+        previous_tz = os.environ.get('TZ')
+
+        os.environ['TZ'] = 'UTC'
+
+        time.tzset()
+        result = original_mktime(timetuple)
+
+        if previous_tz:
+            os.environ['TZ'] = previous_tz
+        else:
+            os.environ.pop('TZ')
+        time.tzset()
+
+        return result
+    else:
+        return original_mktime(timetuple)
 
 
 class DateMeta(type):
@@ -241,6 +262,7 @@ setattr(sys.modules['time'], 'time', fake_time)
 setattr(sys.modules['time'], 'localtime', fake_localtime)
 setattr(sys.modules['time'], 'gmtime', fake_gmtime)
 setattr(sys.modules['time'], 'strftime', fake_strftime)
+setattr(sys.modules['time'], 'mktime', fake_mktime)
 
 
 class immobilus(object):
