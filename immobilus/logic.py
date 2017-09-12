@@ -15,6 +15,22 @@ TIME_TO_FREEZE = None
 TZ_OFFSET = 0
 
 
+class UTC(tzinfo):
+    """UTC"""
+
+    def utcoffset(self, dt):
+        return timedelta(0)
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def dst(self, dt):
+        return timedelta(0)
+
+
+utc = UTC()
+
+
 original_time = time.time
 original_gmtime = time.gmtime
 original_localtime = time.localtime
@@ -151,6 +167,7 @@ class FakeDatetime(datetime):
     def now(cls, tz=None):
         assert tz is None or isinstance(tz, tzinfo)
         global TIME_TO_FREEZE
+        global TZ_OFFSET
 
         if TIME_TO_FREEZE:
             if TIME_TO_FREEZE.tzinfo:
@@ -161,6 +178,22 @@ class FakeDatetime(datetime):
             _datetime = datetime.now(tz=tz)
 
         return cls.from_datetime(_datetime)
+
+    @classmethod
+    def fromtimestamp(cls, timestamp, tz=None):
+        assert tz is None or isinstance(tz, tzinfo)
+        global TIME_TO_FREEZE
+        global TZ_OFFSET
+
+        if TIME_TO_FREEZE:
+            _datetime = (
+                original_datetime.fromtimestamp(timestamp, utc).replace(tzinfo=tz or TIME_TO_FREEZE.tzinfo) +
+                timedelta(hours=TZ_OFFSET)
+            )
+        else:
+            _datetime = original_datetime.fromtimestamp(timestamp)
+
+        return _datetime
 
     @classmethod
     def from_datetime(cls, _datetime):

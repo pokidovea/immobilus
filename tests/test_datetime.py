@@ -52,10 +52,12 @@ def test_nested_context_manager(datetime_function):
     assert datetime_function() != dt1
     assert datetime_function() != dt2
 
+
 def test_datetime_object():
     dt = datetime(1970, 1, 1)
     with immobilus(dt):
         assert datetime.now() == dt
+
 
 def test_datetime_each_time_must_be_different():
     dt1 = datetime.utcnow()
@@ -104,3 +106,39 @@ def test_tz_offset_timezone_on_py3():
         assert dt.minute == (datetime.utcnow() + timedelta(hours=3)).minute
         assert dt.second == (datetime.utcnow() + timedelta(hours=3)).second
         assert dt.tzinfo == pytz.utc
+
+
+def test_fromtimestamp():
+    expected_dt = datetime(1970, 1, 1, 0, 0, tzinfo=None)
+    with immobilus('1970-01-01 00:00:01'):
+        dt = datetime.fromtimestamp(0)
+
+        assert dt == expected_dt
+
+
+def test_fromtimestamp_with_tz_offset():
+    expected_dt = datetime(1970, 1, 1, 6, 0, tzinfo=None)
+    with immobilus('1970-01-01 00:00:01', tz_offset=6):
+        dt = datetime.fromtimestamp(0)
+
+        assert dt == expected_dt
+
+
+def test_fromtimestamp_with_tz():
+    timezone = pytz.timezone('US/Eastern')
+    expected_dt = datetime(1970, 1, 1, 0, 0, tzinfo=timezone)
+
+    with immobilus('1970-01-01 00:00:01'):
+        dt = datetime.fromtimestamp(0, timezone)
+
+        assert dt == expected_dt
+
+
+def test_fromtimestamp_takes_tz_from_frozen_datetime():
+    timezone = pytz.timezone('US/Eastern')
+    expected_dt = datetime(1970, 1, 1, 0, 0, tzinfo=timezone)
+
+    with immobilus(datetime(2017, 1, 1, 0, 0, tzinfo=timezone)):
+        dt = datetime.fromtimestamp(0)
+
+        assert dt == expected_dt
