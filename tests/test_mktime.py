@@ -15,7 +15,7 @@ def test_mktime_without_timezone():
         assert mktime == timestamp
 
 
-def test_mktime_gets_timezone_from_frozen_time():
+def test_mktime_gets_timezone_from_timetuple():
     timezone = pytz.timezone('US/Eastern')
     dt = datetime(1970, 1, 1, 0, 0, tzinfo=timezone)
 

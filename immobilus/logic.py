@@ -192,7 +192,10 @@ class FakeDatetime(datetime):
 
         if TIME_TO_FREEZE:
             if TIME_TO_FREEZE.tzinfo:
-                _datetime = TIME_TO_FREEZE.astimezone(tz) + timedelta(hours=TZ_OFFSET)
+                if tz:
+                    _datetime = TIME_TO_FREEZE.astimezone(tz) + timedelta(hours=TZ_OFFSET)
+                else:
+                    _datetime = TIME_TO_FREEZE + timedelta(hours=TZ_OFFSET)
             else:
                 _datetime = TIME_TO_FREEZE.replace(tzinfo=tz) + timedelta(hours=TZ_OFFSET)
         else:
