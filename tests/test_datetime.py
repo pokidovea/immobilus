@@ -117,7 +117,7 @@ def test_fromtimestamp():
 
 
 def test_fromtimestamp_with_tz_offset():
-    expected_dt = datetime(1970, 1, 1, 6, 0, tzinfo=None)
+    expected_dt = datetime(1970, 1, 1, 0, 0, tzinfo=None)
     with immobilus('1970-01-01 00:00:01', tz_offset=6):
         dt = datetime.fromtimestamp(0)
 
