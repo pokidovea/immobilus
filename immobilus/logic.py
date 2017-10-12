@@ -207,12 +207,10 @@ class FakeDatetime(datetime):
     def fromtimestamp(cls, timestamp, tz=None):
         assert tz is None or isinstance(tz, tzinfo)
         global TIME_TO_FREEZE
-        global TZ_OFFSET
 
         if TIME_TO_FREEZE:
             _datetime = (
-                original_datetime.fromtimestamp(timestamp, utc).replace(tzinfo=tz or TIME_TO_FREEZE.tzinfo) +
-                timedelta(hours=TZ_OFFSET)
+                original_datetime.fromtimestamp(timestamp, utc).replace(tzinfo=tz or TIME_TO_FREEZE.tzinfo)
             )
         else:
             _datetime = original_datetime.fromtimestamp(timestamp)
