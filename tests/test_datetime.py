@@ -1,4 +1,5 @@
 from immobilus import immobilus
+from immobilus.logic import original_datetime, FakeDatetime
 
 import pytz
 from datetime import datetime, timedelta
@@ -142,3 +143,15 @@ def test_fromtimestamp_takes_tz_from_frozen_datetime():
         dt = datetime.fromtimestamp(0)
 
         assert dt == expected_dt
+
+
+def test_isinstance():
+    with immobilus('1970-01-01 00:00:00'):
+        mocked_dt = datetime.utcnow()
+        assert type(mocked_dt) == FakeDatetime
+
+        original_dt = original_datetime.utcnow()
+        assert type(original_dt) != FakeDatetime
+
+        assert isinstance(original_dt, FakeDatetime)
+        assert isinstance(mocked_dt, original_datetime)

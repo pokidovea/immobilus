@@ -1,4 +1,5 @@
 from immobilus import immobilus
+from immobilus.logic import original_date, FakeDate
 
 from datetime import date, timedelta
 
@@ -67,3 +68,15 @@ def test_tz_offset():
         dt2 = date.today()
 
     assert dt1 == dt2 - timedelta(days=1)
+
+
+def test_isinstance():
+    with immobilus('1970-01-01 00:00:00'):
+        mocked_dt = date.today()
+        assert type(mocked_dt) == FakeDate
+
+        original_dt = original_date.today()
+        assert type(original_dt) != FakeDate
+
+        assert isinstance(original_dt, FakeDate)
+        assert isinstance(mocked_dt, original_date)
