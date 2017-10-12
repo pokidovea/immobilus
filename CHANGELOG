@@ -1,0 +1,7 @@
+Immobilus Changelog
+===================
+
+0.2.12
+------
+
+* fix bug with isinstance() in Python3

@@ -4,6 +4,7 @@ import sys
 import time
 from datetime import datetime, date, timedelta, tzinfo
 from functools import wraps
+from six import add_metaclass
 
 from dateutil import parser
 
@@ -103,11 +104,11 @@ def fake_mktime(timetuple):
 
 class DateMeta(type):
 
-    @classmethod
     def __instancecheck__(self, obj):
         return isinstance(obj, date)
 
 
+@add_metaclass(DateMeta)
 class FakeDate(date):
 
     __metaclass__ = DateMeta
@@ -149,11 +150,11 @@ class FakeDate(date):
 
 class DatetimeMeta(type):
 
-    @classmethod
     def __instancecheck__(self, obj):
         return isinstance(obj, datetime)
 
 
+@add_metaclass(DatetimeMeta)
 class FakeDatetime(datetime):
 
     __metaclass__ = DatetimeMeta
