@@ -285,6 +285,12 @@ class immobilus(object):
         return wrapper
 
     def __enter__(self):
+        self.start()
+
+    def __exit__(self, *args):
+        self.stop()
+
+    def start(self):
         global TIME_TO_FREEZE
         global TZ_OFFSET
 
@@ -299,7 +305,7 @@ class immobilus(object):
 
         return self.time_to_freeze
 
-    def __exit__(self, *args):
+    def stop(self):
         global TIME_TO_FREEZE
         global TZ_OFFSET
 

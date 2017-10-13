@@ -54,6 +54,24 @@ def test_nested_context_manager(datetime_function):
     assert datetime_function() != dt2
 
 
+@pytest.mark.parametrize('datetime_function', [datetime.utcnow, datetime.now])
+def test_start_stop(datetime_function):
+
+    dt = datetime(2016, 1, 1, 13, 54)
+    assert datetime_function() != dt
+
+    spell = immobilus('2016-01-01 13:54')
+    assert datetime_function() != dt
+
+    try:
+        spell.start()
+        assert datetime_function() == dt
+    finally:
+        spell.stop()
+
+    assert datetime_function() != dt
+
+
 def test_datetime_object():
     dt = datetime(1970, 1, 1)
     with immobilus(dt):

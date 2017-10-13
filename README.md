@@ -62,4 +62,24 @@ def test_decorator():
     assert datetime.utcnow() != dt
 ```
 
+#### Directly
+```python
+from immobilus import immobilus
+from datetime import datetime
+
+def test_start_stop():
+
+    dt = datetime(2016, 1, 1)
+    assert datetime.utcnow() != dt
+
+    spell = immobilus('2016-01-01 13:54')
+    assert datetime.utcnow() != dt
+
+    spell.start()
+    assert datetime.utcnow() == dt
+    spell.stop()
+
+    assert datetime.utcnow() != dt
+```
+
 _Special thanks to Éloi Rivard (https://github.com/azmeuk) for contribution._
