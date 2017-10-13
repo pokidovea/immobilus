@@ -182,7 +182,14 @@ class FakeDatetime(datetime):
     def utcnow(cls):
         global TIME_TO_FREEZE
 
-        _datetime = TIME_TO_FREEZE or datetime.utcnow()
+        if TIME_TO_FREEZE:
+            if TIME_TO_FREEZE.tzinfo:
+                _datetime = TIME_TO_FREEZE.astimezone(utc).replace(tzinfo=None)
+            else:
+                _datetime = TIME_TO_FREEZE.replace(tzinfo=None)
+        else:
+            _datetime = datetime.utcnow()
+
         return cls.from_datetime(_datetime)
 
     @classmethod
@@ -196,7 +203,7 @@ class FakeDatetime(datetime):
                 if tz:
                     _datetime = TIME_TO_FREEZE.astimezone(tz) + timedelta(hours=TZ_OFFSET)
                 else:
-                    _datetime = TIME_TO_FREEZE + timedelta(hours=TZ_OFFSET)
+                    _datetime = TIME_TO_FREEZE.replace(tzinfo=None) + timedelta(hours=TZ_OFFSET)
             else:
                 _datetime = TIME_TO_FREEZE.replace(tzinfo=tz) + timedelta(hours=TZ_OFFSET)
         else:
