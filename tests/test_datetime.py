@@ -77,6 +77,15 @@ def test_datetime_now_with_timezone_on_py3():
     assert dt1.tzinfo == pytz.utc
 
 
+@pytest.mark.parametrize('datetime_function', [datetime.utcnow, datetime.now])
+def test_datetime_now_is_naive(datetime_function):
+    assert datetime_function().tzinfo == None
+    with immobilus('2017-10-12'):
+        assert datetime_function().tzinfo == None
+    with immobilus(datetime(2017, 10, 12, tzinfo=pytz.utc)):
+        assert datetime_function().tzinfo == None
+
+
 def test_addition():
     dt = datetime(2016, 1, 1, 10, 15)
 
