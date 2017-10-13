@@ -1,6 +1,12 @@
 Immobilus Changelog
 ===================
 
+0.2.13
+------
+
+* fixed bug: pass tz through to the original datetime.fromtimestamp when inactive. (Thanks to @daybarr)
+
+
 0.2.12
 ------
 
