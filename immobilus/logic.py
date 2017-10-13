@@ -214,7 +214,7 @@ class FakeDatetime(datetime):
                 original_datetime.fromtimestamp(timestamp, utc).replace(tzinfo=tz or TIME_TO_FREEZE.tzinfo)
             )
         else:
-            _datetime = original_datetime.fromtimestamp(timestamp)
+            _datetime = original_datetime.fromtimestamp(timestamp, tz)
 
         return _datetime
 

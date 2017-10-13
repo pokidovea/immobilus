@@ -145,6 +145,14 @@ def test_fromtimestamp_takes_tz_from_frozen_datetime():
         assert dt == expected_dt
 
 
+def test_fromtimestamp_with_tz_when_inactive():
+    timezone = pytz.utc
+    expected_dt = datetime(1970, 1, 1, 0, 0, tzinfo=timezone)
+
+    dt = datetime.fromtimestamp(0, timezone)
+    assert dt == expected_dt
+
+
 def test_isinstance():
     with immobilus('1970-01-01 00:00:00'):
         mocked_dt = datetime.utcnow()
