@@ -2,6 +2,8 @@ from immobilus import immobilus
 from immobilus.logic import original_datetime, FakeDatetime
 
 import pytz
+import platform
+import time
 from datetime import datetime, timedelta
 
 import pytest
@@ -62,6 +64,10 @@ def test_datetime_object():
 
 def test_datetime_each_time_must_be_different():
     dt1 = datetime.utcnow()
+    # Sadly, Windows gives us only millisecond resolution, which is
+    # insufficient. We have to wait a while for time to move on.
+    if platform.system() == 'Windows':
+        time.sleep(0.001)
     dt2 = datetime.utcnow()
 
     assert dt1 != dt2
