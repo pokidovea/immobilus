@@ -82,4 +82,6 @@ def test_start_stop():
     assert datetime.utcnow() != dt
 ```
 
-_Special thanks to Éloi Rivard (https://github.com/azmeuk) for contribution._
+#### Special thanks for contribution:
+* Éloi Rivard (https://github.com/azmeuk) 
+* Day Barr (https://github.com/daybarr)

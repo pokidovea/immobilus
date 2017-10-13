@@ -1,13 +1,20 @@
 Immobilus Changelog
 ===================
 
+0.2.14
+______
+
+* Expose direct start & stop functions (@daybarr)
+* bugfix: datetime.utcnow() and datetime.now() should return naive datetimes (@daybarr)
+
+
 0.2.13
 ------
 
-* fixed bug: pass tz through to the original datetime.fromtimestamp when inactive. (Thanks to @daybarr)
+* bugfix: pass tz through to the original datetime.fromtimestamp when inactive. (@daybarr)
 
 
 0.2.12
 ------
 
-* fix bug with isinstance() in Python3
+* bugfix: behaviour of isinstance() in Python3

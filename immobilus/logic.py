@@ -111,8 +111,6 @@ class DateMeta(type):
 @add_metaclass(DateMeta)
 class FakeDate(date):
 
-    __metaclass__ = DateMeta
-
     def __add__(self, other):
         result = date.__add__(self, other)
 
@@ -156,8 +154,6 @@ class DatetimeMeta(type):
 
 @add_metaclass(DatetimeMeta)
 class FakeDatetime(datetime):
-
-    __metaclass__ = DatetimeMeta
 
     def __add__(self, other):
         result = datetime.__add__(self, other)
