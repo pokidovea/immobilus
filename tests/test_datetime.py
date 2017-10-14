@@ -1,5 +1,7 @@
+import six
+
 from immobilus import immobilus
-from immobilus.logic import original_datetime, FakeDatetime
+from immobilus.logic import original_datetime, FakeDatetime, _total_seconds
 
 import pytz
 import platform
@@ -91,7 +93,7 @@ def test_datetime_each_time_must_be_different():
     assert dt1 != dt2
 
 
-def test_datetime_now_with_timezone_on_py3():
+def test_datetime_now_with_timezone():
     dt = datetime.now(tz=pytz.utc)
 
     with immobilus('2016-01-01 13:54'):
@@ -198,3 +200,39 @@ def test_isinstance():
 
         assert isinstance(original_dt, FakeDatetime)
         assert isinstance(mocked_dt, original_datetime)
+
+
+def test_timestamp_without_time_zone():
+    with immobilus('1970-01-01 00:00:00'):
+        if six.PY2:
+            with pytest.raises(AttributeError):
+                datetime.utcnow().timestamp()
+        else:
+            assert datetime.utcnow().timestamp() == 0
+
+
+def test_timestamp_when_inactive():
+    timezone = pytz.timezone('Europe/Moscow')
+    dt = datetime(1970, 1, 1, 0, 0)
+    utcoffset = _total_seconds(timezone.utcoffset(dt))
+    dt = timezone.localize(dt)
+
+    if six.PY2:
+        with pytest.raises(AttributeError):
+            dt.timestamp()
+    else:
+        assert dt.timestamp() == -utcoffset
+
+
+def test_timestamp_with_time_zone():
+    timezone = pytz.timezone('Europe/Moscow')
+    dt = datetime(1970, 1, 1, 0, 0)
+    utcoffset = _total_seconds(timezone.utcoffset(dt))
+    dt = timezone.localize(dt)
+
+    with immobilus(dt):
+        if six.PY2:
+            with pytest.raises(AttributeError):
+                datetime.utcnow().timestamp()
+        else:
+            assert datetime.utcnow().timestamp() == -utcoffset
