@@ -1,5 +1,5 @@
 from immobilus import immobilus
-from immobilus.logic import datetime_to_timestamp
+from immobilus.logic import datetime_to_utc_timestamp
 
 import time
 from datetime import datetime
@@ -7,7 +7,7 @@ from datetime import datetime
 
 def test_ignore_immobilus_when_seconds_are_set(set_timezone):
     dt = datetime(2016, 1, 1, 14, 56)
-    timestamp = datetime_to_timestamp(dt)
+    timestamp = datetime_to_utc_timestamp(dt)
 
     with immobilus('2015-11-16'):
         time_struct = time.localtime(timestamp)
