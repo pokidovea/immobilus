@@ -1,7 +1,7 @@
 import six
 
 from immobilus import immobilus
-from immobilus.logic import original_datetime, FakeDatetime
+from immobilus.logic import original_datetime, FakeDatetime, _total_seconds
 
 import pytz
 import platform
@@ -214,7 +214,7 @@ def test_timestamp_without_time_zone():
 def test_timestamp_when_inactive():
     timezone = pytz.timezone('Europe/Moscow')
     dt = datetime(1970, 1, 1, 0, 0)
-    utcoffset = timezone.utcoffset(dt).total_seconds()
+    utcoffset = _total_seconds(timezone.utcoffset(dt))
     dt = timezone.localize(dt)
 
     if six.PY2:
@@ -227,7 +227,7 @@ def test_timestamp_when_inactive():
 def test_timestamp_with_time_zone():
     timezone = pytz.timezone('Europe/Moscow')
     dt = datetime(1970, 1, 1, 0, 0)
-    utcoffset = timezone.utcoffset(dt).total_seconds()
+    utcoffset = _total_seconds(timezone.utcoffset(dt))
     dt = timezone.localize(dt)
 
     with immobilus(dt):

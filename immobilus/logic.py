@@ -40,17 +40,20 @@ original_date = date
 original_datetime = datetime
 
 
-def datetime_to_utc_timestamp(dt):
+def _total_seconds(timedelta):
+    """Python 2.6 does not support timedelta.total_seconds() or timedelta/timedelta"""
+    return (timedelta.microseconds + (timedelta.seconds + timedelta.days * 24 * 3600) * 10**6) / 10**6
+
+
+def _datetime_to_utc_timestamp(dt):
     delta = dt - original_datetime(1970, 1, 1)
 
-    # Python 2.6 does not support timedelta.total_seconds() or timedelta/timedelta
-    total_seconds = (delta.microseconds + (delta.seconds + delta.days * 24 * 3600) * 10**6) / 10**6
-    return total_seconds
+    return _total_seconds(delta)
 
 
 def fake_time():
     if TIME_TO_FREEZE is not None:
-        return datetime_to_utc_timestamp(TIME_TO_FREEZE)
+        return _datetime_to_utc_timestamp(TIME_TO_FREEZE)
     else:
         return original_time()
 
@@ -243,9 +246,9 @@ class FakeDatetime(datetime):
 
         if TIME_TO_FREEZE:
             if TIME_TO_FREEZE.tzinfo:
-                return datetime_to_utc_timestamp(TIME_TO_FREEZE.astimezone(utc).replace(tzinfo=None))
+                return _datetime_to_utc_timestamp(TIME_TO_FREEZE.astimezone(utc).replace(tzinfo=None))
             else:
-                return datetime_to_utc_timestamp(TIME_TO_FREEZE)
+                return _datetime_to_utc_timestamp(TIME_TO_FREEZE)
         else:
             return super(FakeDatetime, self).timestamp()
 
