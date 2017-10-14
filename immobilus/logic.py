@@ -42,7 +42,7 @@ original_datetime = datetime
 
 def _total_seconds(timedelta):
     """Python 2.6 does not support timedelta.total_seconds() or timedelta/timedelta"""
-    return (timedelta.microseconds + (timedelta.seconds + timedelta.days * 24 * 3600) * 10**6) / 10**6
+    return float((timedelta.microseconds + (timedelta.seconds + timedelta.days * 24 * 3600) * 10**6)) / 10**6
 
 
 def _datetime_to_utc_timestamp(dt):
