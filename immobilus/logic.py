@@ -1,10 +1,9 @@
-import calendar
 import os
+import six
 import sys
 import time
 from datetime import datetime, date, timedelta, tzinfo
 from functools import wraps
-from six import add_metaclass
 
 from dateutil import parser
 
@@ -41,13 +40,20 @@ original_date = date
 original_datetime = datetime
 
 
-def datetime_to_timestamp(dt):
-    return float(calendar.timegm(dt.timetuple()))
+def _total_seconds(timedelta):
+    """Python 2.6 does not support timedelta.total_seconds() or timedelta/timedelta"""
+    return float((timedelta.microseconds + (timedelta.seconds + timedelta.days * 24 * 3600) * 10**6)) / 10**6
+
+
+def _datetime_to_utc_timestamp(dt):
+    delta = dt - original_datetime(1970, 1, 1)
+
+    return _total_seconds(delta)
 
 
 def fake_time():
     if TIME_TO_FREEZE is not None:
-        return datetime_to_timestamp(TIME_TO_FREEZE)
+        return _datetime_to_utc_timestamp(TIME_TO_FREEZE)
     else:
         return original_time()
 
@@ -108,7 +114,7 @@ class DateMeta(type):
         return isinstance(obj, date)
 
 
-@add_metaclass(DateMeta)
+@six.add_metaclass(DateMeta)
 class FakeDate(date):
 
     def __add__(self, other):
@@ -152,7 +158,7 @@ class DatetimeMeta(type):
         return isinstance(obj, datetime)
 
 
-@add_metaclass(DatetimeMeta)
+@six.add_metaclass(DatetimeMeta)
 class FakeDatetime(datetime):
 
     def __add__(self, other):
@@ -233,6 +239,18 @@ class FakeDatetime(datetime):
             _datetime.microsecond,
             _datetime.tzinfo,
         )
+
+    def timestamp(self):
+        if not six.PY3:
+            raise AttributeError('\'datetime.datetime\' object has no attribute \'timestamp\'')
+
+        if TIME_TO_FREEZE:
+            if TIME_TO_FREEZE.tzinfo:
+                return _datetime_to_utc_timestamp(TIME_TO_FREEZE.astimezone(utc).replace(tzinfo=None))
+            else:
+                return _datetime_to_utc_timestamp(TIME_TO_FREEZE)
+        else:
+            return super(FakeDatetime, self).timestamp()
 
 
 def pickle_fake_date(datetime_):
