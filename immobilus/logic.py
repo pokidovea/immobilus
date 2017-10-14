@@ -41,7 +41,11 @@ original_datetime = datetime
 
 
 def datetime_to_utc_timestamp(dt):
-    return (dt - original_datetime(1970, 1, 1)) // timedelta(seconds=1)
+    delta = dt - original_datetime(1970, 1, 1)
+
+    # Python 2.6 does not support timedelta.total_seconds() or timedelta/timedelta
+    total_seconds = (delta.microseconds + (delta.seconds + delta.days * 24 * 3600) * 10**6) / 10**6
+    return total_seconds
 
 
 def fake_time():
