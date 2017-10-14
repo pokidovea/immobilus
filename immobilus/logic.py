@@ -41,7 +41,7 @@ original_datetime = datetime
 
 
 def datetime_to_utc_timestamp(dt):
-    return (dt - original_datetime(1970, 1, 1)).total_seconds()
+    return (dt - original_datetime(1970, 1, 1)) // timedelta(seconds=1)
 
 
 def fake_time():
