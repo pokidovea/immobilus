@@ -1,6 +1,14 @@
 Immobilus Changelog
 ===================
 
+0.2.15
+------
+
+* Fix datetime.timestamp() behaviour on Py3
+* Fix time.mktime() behaviour on Windows
+* Add tests for windows
+
+
 0.2.14
 ______
 
