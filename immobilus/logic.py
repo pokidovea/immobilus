@@ -197,9 +197,13 @@ class FakeDatetime(datetime):
         assert tz is None or isinstance(tz, tzinfo)
         global TIME_TO_FREEZE
 
-        if TIME_TO_FREEZE:
+        if TIME_TO_FREEZE and tz is None:
+            # Standard library docs say
+            # the timestamp is converted to the platform's local date and time,
+            # and the returned datetime object is naive.
             _datetime = (
-                original_datetime.fromtimestamp(timestamp, utc).replace(tzinfo=tz or TIME_TO_FREEZE.tzinfo)
+                original_datetime.fromtimestamp(timestamp, utc).replace(tzinfo=None) +
+                timedelta(hours=TZ_OFFSET)
             )
         else:
             _datetime = original_datetime.fromtimestamp(timestamp, tz)

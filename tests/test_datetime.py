@@ -155,7 +155,7 @@ def test_fromtimestamp():
 
 
 def test_fromtimestamp_with_tz_offset():
-    expected_dt = datetime(1970, 1, 1, 0, 0, tzinfo=None)
+    expected_dt = datetime(1970, 1, 1, 6, tzinfo=None)
     with immobilus('1970-01-01 00:00:01', tz_offset=6):
         dt = datetime.fromtimestamp(0)
 
@@ -163,21 +163,11 @@ def test_fromtimestamp_with_tz_offset():
 
 
 def test_fromtimestamp_with_tz():
-    timezone = pytz.timezone('US/Eastern')
+    timezone = pytz.utc
     expected_dt = datetime(1970, 1, 1, 0, 0, tzinfo=timezone)
 
     with immobilus('1970-01-01 00:00:01'):
         dt = datetime.fromtimestamp(0, timezone)
-
-        assert dt == expected_dt
-
-
-def test_fromtimestamp_takes_tz_from_frozen_datetime():
-    timezone = pytz.timezone('US/Eastern')
-    expected_dt = datetime(1970, 1, 1, 0, 0, tzinfo=timezone)
-
-    with immobilus(datetime(2017, 1, 1, 0, 0, tzinfo=timezone)):
-        dt = datetime.fromtimestamp(0)
 
         assert dt == expected_dt
 
