@@ -1,7 +1,7 @@
-import os
 import six
 import sys
 import time
+import calendar
 from datetime import datetime, date, timedelta, tzinfo
 from functools import wraps
 
@@ -90,20 +90,7 @@ def fake_strftime(format, t=None):
 
 def fake_mktime(timetuple):
     if TIME_TO_FREEZE is not None:
-        previous_tz = os.environ.get('TZ')
-
-        os.environ['TZ'] = 'UTC'
-
-        time.tzset()
-        result = original_mktime(timetuple)
-
-        if previous_tz:
-            os.environ['TZ'] = previous_tz
-        else:
-            os.environ.pop('TZ')
-        time.tzset()
-
-        return result
+        return calendar.timegm(timetuple)
     else:
         return original_mktime(timetuple)
 
