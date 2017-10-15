@@ -46,6 +46,7 @@ def _total_seconds(timedelta):
 
 
 def _datetime_to_utc_timestamp(dt):
+    assert dt.tzinfo is None
     delta = dt - original_datetime(1970, 1, 1)
 
     return _total_seconds(delta)
@@ -53,7 +54,12 @@ def _datetime_to_utc_timestamp(dt):
 
 def fake_time():
     if TIME_TO_FREEZE is not None:
-        return _datetime_to_utc_timestamp(TIME_TO_FREEZE)
+        if TIME_TO_FREEZE.tzinfo:
+            return _datetime_to_utc_timestamp(
+                TIME_TO_FREEZE.astimezone(utc).replace(tzinfo=None)
+            )
+        else:
+            return _datetime_to_utc_timestamp(TIME_TO_FREEZE)
     else:
         return original_time()
 
