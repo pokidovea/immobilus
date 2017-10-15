@@ -24,9 +24,9 @@ environment:
 
 install:
   # We need wheel installed to build wheels
-  - "%PYTHON%\\python.exe -m pip install wheel"
-  - "%PYTHON%\\python.exe -m pip install ."
-  - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
+  - "pip install wheel"
+  - "pip install ."
+  - "pip install -r requirements.txt"
 
 build: off
 
