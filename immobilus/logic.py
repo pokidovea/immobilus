@@ -64,7 +64,7 @@ def fake_localtime(seconds=None):
         return original_localtime(seconds)
 
     if TIME_TO_FREEZE is not None:
-        return (TIME_TO_FREEZE + timedelta(seconds=time.timezone)).timetuple()
+        return (TIME_TO_FREEZE + timedelta(hours=TZ_OFFSET)).timetuple()
     else:
         return original_localtime()
 
@@ -91,7 +91,7 @@ def fake_strftime(format, t=None):
 
 def fake_mktime(timetuple):
     if TIME_TO_FREEZE is not None:
-        return original_mktime(timetuple) - _total_seconds(timedelta(hours=TZ_OFFSET))
+        return calendar.timegm(timetuple) - _total_seconds(timedelta(hours=TZ_OFFSET))
     else:
         return original_mktime(timetuple)
 
