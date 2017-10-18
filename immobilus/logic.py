@@ -91,7 +91,7 @@ def fake_strftime(format, t=None):
 
 def fake_mktime(timetuple):
     if TIME_TO_FREEZE is not None:
-        return calendar.timegm(timetuple) - _total_seconds(timedelta(hours=TZ_OFFSET))
+        return calendar.timegm(timetuple) + _total_seconds(timedelta(hours=TZ_OFFSET))
     else:
         return original_mktime(timetuple)
 
