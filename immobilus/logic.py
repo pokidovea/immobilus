@@ -91,7 +91,7 @@ def fake_strftime(format, t=None):
 
 def fake_mktime(timetuple):
     if TIME_TO_FREEZE is not None:
-        return calendar.timegm(timetuple) + _total_seconds(timedelta(hours=TZ_OFFSET))
+        return calendar.timegm(timetuple) - _total_seconds(timedelta(hours=TZ_OFFSET))
     else:
         return original_mktime(timetuple)
 
@@ -196,6 +196,7 @@ class FakeDatetime(datetime):
     def fromtimestamp(cls, timestamp, tz=None):
         assert tz is None or isinstance(tz, tzinfo)
         global TIME_TO_FREEZE
+        global TZ_OFFSET
 
         if TIME_TO_FREEZE and tz is None:
             # Standard library docs say
