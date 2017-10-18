@@ -46,6 +46,7 @@ def _total_seconds(timedelta):
 
 
 def _datetime_to_utc_timestamp(dt):
+    assert dt.tzinfo is None
     delta = dt - original_datetime(1970, 1, 1)
 
     return _total_seconds(delta)
@@ -90,7 +91,7 @@ def fake_strftime(format, t=None):
 
 def fake_mktime(timetuple):
     if TIME_TO_FREEZE is not None:
-        return calendar.timegm(timetuple)
+        return original_mktime(timetuple) - _total_seconds(timedelta(hours=TZ_OFFSET))
     else:
         return original_mktime(timetuple)
 
@@ -172,10 +173,7 @@ class FakeDatetime(datetime):
         global TIME_TO_FREEZE
 
         if TIME_TO_FREEZE:
-            if TIME_TO_FREEZE.tzinfo:
-                _datetime = TIME_TO_FREEZE.astimezone(utc).replace(tzinfo=None)
-            else:
-                _datetime = TIME_TO_FREEZE.replace(tzinfo=None)
+            _datetime = TIME_TO_FREEZE
         else:
             _datetime = datetime.utcnow()
 
@@ -188,13 +186,7 @@ class FakeDatetime(datetime):
         global TZ_OFFSET
 
         if TIME_TO_FREEZE:
-            if TIME_TO_FREEZE.tzinfo:
-                if tz:
-                    _datetime = TIME_TO_FREEZE.astimezone(tz) + timedelta(hours=TZ_OFFSET)
-                else:
-                    _datetime = TIME_TO_FREEZE.replace(tzinfo=None) + timedelta(hours=TZ_OFFSET)
-            else:
-                _datetime = TIME_TO_FREEZE.replace(tzinfo=tz) + timedelta(hours=TZ_OFFSET)
+            _datetime = TIME_TO_FREEZE.replace(tzinfo=tz) + timedelta(hours=TZ_OFFSET)
         else:
             _datetime = datetime.now(tz=tz)
 
@@ -205,9 +197,13 @@ class FakeDatetime(datetime):
         assert tz is None or isinstance(tz, tzinfo)
         global TIME_TO_FREEZE
 
-        if TIME_TO_FREEZE:
+        if TIME_TO_FREEZE and tz is None:
+            # Standard library docs say
+            # the timestamp is converted to the platform's local date and time,
+            # and the returned datetime object is naive.
             _datetime = (
-                original_datetime.fromtimestamp(timestamp, utc).replace(tzinfo=tz or TIME_TO_FREEZE.tzinfo)
+                original_datetime.fromtimestamp(timestamp, utc).replace(tzinfo=None) +
+                timedelta(hours=TZ_OFFSET)
             )
         else:
             _datetime = original_datetime.fromtimestamp(timestamp, tz)
@@ -232,10 +228,7 @@ class FakeDatetime(datetime):
             raise AttributeError('\'datetime.datetime\' object has no attribute \'timestamp\'')
 
         if TIME_TO_FREEZE:
-            if TIME_TO_FREEZE.tzinfo:
-                return _datetime_to_utc_timestamp(TIME_TO_FREEZE.astimezone(utc).replace(tzinfo=None))
-            else:
-                return _datetime_to_utc_timestamp(TIME_TO_FREEZE)
+            return _datetime_to_utc_timestamp(TIME_TO_FREEZE)
         else:
             return super(FakeDatetime, self).timestamp()
 
@@ -306,6 +299,9 @@ class immobilus(object):
 
         if isinstance(self.time_to_freeze, original_date):
             TIME_TO_FREEZE = self.time_to_freeze
+            # Convert to a naive UTC datetime if necessary
+            if TIME_TO_FREEZE.tzinfo:
+                TIME_TO_FREEZE = TIME_TO_FREEZE.astimezone(utc).replace(tzinfo=None)
         else:
             TIME_TO_FREEZE = parser.parse(self.time_to_freeze)
 
