@@ -123,6 +123,23 @@ def test_now_with_tz_offset():
         assert dt.tzinfo is None
 
 
+def test_now_with_nested_tz_offset():
+    freeze_time = '2016-01-01 13:54'
+    with immobilus(freeze_time):
+        dt0 = datetime.now()
+        with immobilus(freeze_time, tz_offset=1):
+            dt1 = datetime.now()
+            with immobilus(freeze_time, tz_offset=2):
+                dt2 = datetime.now()
+            dt1_2 = datetime.now()
+        dt0_2 = datetime.now()
+
+    assert dt0 == dt0_2
+    assert dt1 == dt1_2
+    assert dt0 == dt1 - timedelta(hours=1)
+    assert dt0 == dt2 - timedelta(hours=2)
+
+
 def test_now_with_timezone_and_tz_offset():
     timezone = pytz.timezone('Europe/Samara')  # UTC + 4
     with immobilus('2016-01-01 13:54', tz_offset=3):
