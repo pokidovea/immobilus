@@ -90,6 +90,7 @@ def fake_strftime(format, t=None):
 
 
 def fake_mktime(timetuple):
+    # converts local timetuple to utc timestamp
     if TIME_TO_FREEZE is not None:
         return calendar.timegm(timetuple) - _total_seconds(timedelta(hours=TZ_OFFSET))
     else:
@@ -229,7 +230,10 @@ class FakeDatetime(datetime):
             raise AttributeError('\'datetime.datetime\' object has no attribute \'timestamp\'')
 
         if TIME_TO_FREEZE:
-            return _datetime_to_utc_timestamp(TIME_TO_FREEZE)
+            if self.tzinfo:
+                return _datetime_to_utc_timestamp(self.astimezone(utc).replace(tzinfo=None))
+            else:
+                return _datetime_to_utc_timestamp(self - timedelta(hours=TZ_OFFSET))
         else:
             return super(FakeDatetime, self).timestamp()
 

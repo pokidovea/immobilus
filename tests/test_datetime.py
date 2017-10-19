@@ -1,7 +1,7 @@
 import six
 
 from immobilus import immobilus
-from immobilus.logic import original_datetime, FakeDatetime, _total_seconds
+from immobilus.logic import original_datetime, FakeDatetime
 
 import pytz
 import platform
@@ -192,37 +192,40 @@ def test_isinstance():
         assert isinstance(mocked_dt, original_datetime)
 
 
-def test_timestamp_without_time_zone():
-    with immobilus('1970-01-01 00:00:00'):
+def test_timestamp_from_naive_datetime_without_offset():
+    with immobilus('2017-01-01 00:00:00'):
+        dt = datetime(1970, 1, 1, 0, 0)
         if six.PY2:
             with pytest.raises(AttributeError):
-                datetime.utcnow().timestamp()
+                dt.timestamp()
         else:
-            assert datetime.utcnow().timestamp() == 0
+            assert dt.timestamp() == 0
 
 
-def test_timestamp_when_inactive():
+def test_timestamp_from_naive_datetime_with_offset():
+    # Naive datetime instances are assumed to represent local time
+    with immobilus('2017-01-01 00:00:00', tz_offset=2):
+        dt = datetime(1970, 1, 1, 0, 0)
+        if six.PY2:
+            with pytest.raises(AttributeError):
+                dt.timestamp()
+        else:
+            assert dt.timestamp() == -2 * 3600
+
+
+def test_timestamp_from_aware_datetime():
     timezone = pytz.timezone('Europe/Moscow')
-    dt = datetime(1970, 1, 1, 0, 0)
-    utcoffset = _total_seconds(timezone.utcoffset(dt))
-    dt = timezone.localize(dt)
+    dt = timezone.localize(datetime(1970, 1, 1, 0, 0))
 
     if six.PY2:
         with pytest.raises(AttributeError):
             dt.timestamp()
     else:
-        assert dt.timestamp() == -utcoffset
+        assert dt.timestamp() == -3 * 3600
 
-
-def test_timestamp_with_time_zone():
-    timezone = pytz.timezone('Europe/Moscow')
-    dt = datetime(1970, 1, 1, 0, 0)
-    utcoffset = _total_seconds(timezone.utcoffset(dt))
-    dt = timezone.localize(dt)
-
-    with immobilus(dt):
+    with immobilus('2017-01-01 00:00:00'):
         if six.PY2:
             with pytest.raises(AttributeError):
-                datetime.utcnow().timestamp()
+                dt.timestamp()
         else:
-            assert datetime.utcnow().timestamp() == -utcoffset
+            assert dt.timestamp() == -3 * 3600
