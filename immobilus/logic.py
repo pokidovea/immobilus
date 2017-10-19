@@ -127,8 +127,6 @@ class FakeDate(date):
 
     @classmethod
     def today(cls):
-        global TIME_TO_FREEZE
-
         _date = TIME_TO_FREEZE + timedelta(hours=TZ_OFFSET) if TIME_TO_FREEZE else date.today()
         return cls.from_datetime(_date)
 
@@ -171,8 +169,6 @@ class FakeDatetime(datetime):
 
     @classmethod
     def utcnow(cls):
-        global TIME_TO_FREEZE
-
         if TIME_TO_FREEZE:
             _datetime = TIME_TO_FREEZE
         else:
@@ -183,9 +179,6 @@ class FakeDatetime(datetime):
     @classmethod
     def now(cls, tz=None):
         assert tz is None or isinstance(tz, tzinfo)
-        global TIME_TO_FREEZE
-        global TZ_OFFSET
-
         if TIME_TO_FREEZE:
             if tz:
                 _datetime = TIME_TO_FREEZE.replace(tzinfo=utc).astimezone(tz)
@@ -199,8 +192,6 @@ class FakeDatetime(datetime):
     @classmethod
     def fromtimestamp(cls, timestamp, tz=None):
         assert tz is None or isinstance(tz, tzinfo)
-        global TIME_TO_FREEZE
-        global TZ_OFFSET
 
         if TIME_TO_FREEZE and tz is None:
             # Standard library docs say
@@ -231,9 +222,6 @@ class FakeDatetime(datetime):
     def timestamp(self):
         if not six.PY3:
             raise AttributeError('\'datetime.datetime\' object has no attribute \'timestamp\'')
-
-        global TIME_TO_FREEZE
-        global TZ_OFFSET
 
         if TIME_TO_FREEZE:
             if self.tzinfo:
