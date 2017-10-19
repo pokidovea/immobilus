@@ -93,16 +93,6 @@ def test_datetime_each_time_must_be_different():
     assert dt1 != dt2
 
 
-def test_datetime_now_with_timezone():
-    dt = datetime.now(tz=pytz.utc)
-
-    with immobilus('2016-01-01 13:54'):
-        dt1 = datetime.now(tz=pytz.utc)
-
-    assert dt.tzinfo == pytz.utc
-    assert dt1.tzinfo == pytz.utc
-
-
 @pytest.mark.parametrize('datetime_function', [datetime.utcnow, datetime.now])
 def test_datetime_now_is_naive(datetime_function):
     assert datetime_function().tzinfo is None
@@ -126,24 +116,27 @@ def test_subtraction():
     assert dt - timedelta(days=1, hours=1, minutes=10) == datetime(2016, 1, 1, 10, 15)
 
 
-def test_tz_offset():
+def test_now_with_tz_offset():
     with immobilus('2016-01-01 13:54', tz_offset=3):
         dt = datetime.now()
         assert dt == datetime.utcnow() + timedelta(hours=3)
+        assert dt.tzinfo is None
 
 
-def test_tz_offset_timezone_on_py3():
+def test_now_with_timezone_and_tz_offset():
+    timezone = pytz.timezone('Europe/Samara')  # UTC + 4
     with immobilus('2016-01-01 13:54', tz_offset=3):
-        dt = datetime.now(tz=pytz.utc)
+        dt = datetime.now(tz=timezone)
+        expected_dt = datetime.utcnow() + timedelta(hours=4)
 
-        assert dt.year == (datetime.utcnow() + timedelta(hours=3)).year
-        assert dt.month == (datetime.utcnow() + timedelta(hours=3)).month
-        assert dt.day == (datetime.utcnow() + timedelta(hours=3)).day
+        assert dt.year == expected_dt.year
+        assert dt.month == expected_dt.month
+        assert dt.day == expected_dt.day
 
-        assert dt.hour == (datetime.utcnow() + timedelta(hours=3)).hour
-        assert dt.minute == (datetime.utcnow() + timedelta(hours=3)).minute
-        assert dt.second == (datetime.utcnow() + timedelta(hours=3)).second
-        assert dt.tzinfo == pytz.utc
+        assert dt.hour == expected_dt.hour
+        assert dt.minute == expected_dt.minute
+        assert dt.second == expected_dt.second
+        assert dt.tzinfo is not None
 
 
 def test_fromtimestamp():

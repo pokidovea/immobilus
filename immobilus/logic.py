@@ -187,7 +187,10 @@ class FakeDatetime(datetime):
         global TZ_OFFSET
 
         if TIME_TO_FREEZE:
-            _datetime = TIME_TO_FREEZE.replace(tzinfo=tz) + timedelta(hours=TZ_OFFSET)
+            if tz:
+                _datetime = TIME_TO_FREEZE.replace(tzinfo=utc).astimezone(tz)
+            else:
+                _datetime = TIME_TO_FREEZE + timedelta(hours=TZ_OFFSET)
         else:
             _datetime = datetime.now(tz=tz)
 
@@ -228,6 +231,9 @@ class FakeDatetime(datetime):
     def timestamp(self):
         if not six.PY3:
             raise AttributeError('\'datetime.datetime\' object has no attribute \'timestamp\'')
+
+        global TIME_TO_FREEZE
+        global TZ_OFFSET
 
         if TIME_TO_FREEZE:
             if self.tzinfo:
