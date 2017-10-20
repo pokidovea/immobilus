@@ -294,7 +294,8 @@ class immobilus(object):
         global TIME_TO_FREEZE
         global TZ_OFFSET
 
-        self.previous_value = TIME_TO_FREEZE
+        self.previous_time_to_freeze = TIME_TO_FREEZE
+        self.previous_tz_offset = TZ_OFFSET
 
         if isinstance(self.time_to_freeze, original_date):
             TIME_TO_FREEZE = self.time_to_freeze
@@ -312,5 +313,5 @@ class immobilus(object):
         global TIME_TO_FREEZE
         global TZ_OFFSET
 
-        TIME_TO_FREEZE = self.previous_value
-        TZ_OFFSET = 0
+        TIME_TO_FREEZE = self.previous_time_to_freeze
+        TZ_OFFSET = self.previous_tz_offset
