@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='immobilus',
-    version='0.2.15',
+    version='1.0',
     description='Say `Immobilus!` to freeze your tests',
     author='Eugene Pokidov',
     author_email='pokidovea@gmail.com',
