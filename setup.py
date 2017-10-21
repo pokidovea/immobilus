@@ -2,10 +2,14 @@
 
 from setuptools import setup
 
+with open('README.rst', 'r') as f:
+    long_description = f.read()
+
 setup(
     name='immobilus',
-    version='1.1',
+    version='1.2',
     description='Say `Immobilus!` to freeze your tests',
+    long_description=long_description,
     author='Eugene Pokidov',
     author_email='pokidovea@gmail.com',
     url='https://github.com/pokidovea/immobilus',
