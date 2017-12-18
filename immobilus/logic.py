@@ -3,7 +3,6 @@ import sys
 import time
 import calendar
 from datetime import datetime, date, timedelta, tzinfo
-from functools import wraps
 
 from dateutil import parser
 
@@ -267,7 +266,7 @@ setattr(sys.modules['time'], 'strftime', fake_strftime)
 setattr(sys.modules['time'], 'mktime', fake_mktime)
 
 
-class immobilus(object):
+class _immobilus(object):
 
     def __init__(self, time_to_freeze, tz_offset=0):
         self.time_to_freeze = time_to_freeze
@@ -277,7 +276,7 @@ class immobilus(object):
         return self._decorate_func(func)
 
     def _decorate_func(self, fn):
-        @wraps(fn)
+        @six.wraps(fn)
         def wrapper(*args, **kwargs):
             with self:
                 return fn(*args, **kwargs)
@@ -315,3 +314,27 @@ class immobilus(object):
 
         TIME_TO_FREEZE = self.previous_time_to_freeze
         TZ_OFFSET = self.previous_tz_offset
+
+
+if sys.version_info[0:2] >= (3, 5):
+    six.exec_("""
+from asyncio import iscoroutinefunction
+
+class immobilus(_immobilus):
+
+    def __call__(self, func):
+        if iscoroutinefunction(func):
+            return self._decorate_coroutine(func)
+
+        return self._decorate_func(func)
+
+    def _decorate_coroutine(self, coro):
+        @six.wraps(coro)
+        async def wrapper(*args, **kwargs):
+            with self:
+                return await coro(*args, **kwargs)
+
+        return wrapper
+""")
+else:
+    immobilus = _immobilus

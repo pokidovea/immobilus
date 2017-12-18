@@ -123,6 +123,21 @@ As well as being a context manager, `immobilus` is also a decorator:
 
 ```
 
+It works even with coroutines since `python 3.5`
+
+```python
+>>> import asyncio
+>>> 
+>>> @immobilus('2017-10-20')
+... async def test():
+...     print(datetime.now())
+...
+>>> loop = asyncio.new_event_loop()
+>>> loop.run_until_complete(test())
+2017-10-20 00:00:00
+
+```
+
 #### Using directly
 
 Or you can activate and deactivate `immobilus` manually.

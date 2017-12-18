@@ -1,6 +1,11 @@
 Immobilus Changelog
 ===================
 
+1.3
+-----
+
+Now it works with coroutines
+
 1.2
 -----
 
