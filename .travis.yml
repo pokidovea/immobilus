@@ -12,7 +12,5 @@ python:
 
 script: make test
 install:
-  - python --version
   - pip install .
   - pip install -r requirements.txt
-  - pip freeze

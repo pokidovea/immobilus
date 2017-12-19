@@ -1,12 +1,6 @@
 environment:
 
   matrix:
-
-    # For Python versions available on Appveyor, see
-    # http://www.appveyor.com/docs/installed-software#python
-    # The list here is complete (excluding Python 2.6, which
-    # isn't covered by this document) at the time of writing.
-
     - PYTHON: "C:\\Python26"
     - PYTHON: "C:\\Python27"
     - PYTHON: "C:\\Python33"
@@ -23,7 +17,7 @@ environment:
     - PYTHON: "C:\\Python36-x64"
 
 install:
-  # We need wheel installed to build wheels
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - "python --version"
   - "pip install wheel"
   - "pip install ."
