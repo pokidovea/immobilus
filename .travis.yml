@@ -1,7 +1,6 @@
 language: python
 os:
   - linux
-  # - osx
 
 python:
   - 2.6
@@ -13,5 +12,7 @@ python:
 
 script: make test
 install:
+  - python --version
   - pip install .
   - pip install -r requirements.txt
+  - pip freeze
