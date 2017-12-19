@@ -143,15 +143,22 @@ It works even with coroutines since ``python 3.5``
 
 .. code:: python
 
-    >>> import asyncio
+    >>> import sys
+    >>> import six
     >>>
-    >>> @immobilus('2017-10-20')
-    ... async def test():
-    ...     print(datetime.now())
+    >>> if sys.version_info[0:2] >= (3, 5):
+    ...    result = ''
+    ...    six.exec_("""
+    ... import asyncio
     ...
-    >>> loop = asyncio.new_event_loop()
-    >>> loop.run_until_complete(test())
-    2017-10-20 00:00:00
+    ... @immobilus('2017-10-20')
+    ... async def test():
+    ...    return datetime.now()
+    ...
+    ... loop = asyncio.new_event_loop()
+    ... result = loop.run_until_complete(test())
+    ...     """)
+    ...    assert result.strftime('%Y-%m-%d %H:%M:%S') == '2017-10-20 00:00:00'
 
 Using directly
 ^^^^^^^^^^^^^^
