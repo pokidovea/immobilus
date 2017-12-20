@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 @immobilus('2017-01-01')
-class TestClassDecoration:
+class TestClassDecoration(object):
 
     now = datetime.utcnow()
 

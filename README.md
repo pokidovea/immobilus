@@ -128,7 +128,7 @@ It works even with classes
 ```python
 
 >>> @immobilus('2017-10-20')
-... class Decorated:
+... class Decorated(object):
 ...     now = datetime.utcnow()
 ...
 ...     def first(self):
