@@ -272,8 +272,11 @@ class _immobilus(object):
         self.time_to_freeze = time_to_freeze
         self.tz_offset = tz_offset
 
-    def __call__(self, func):
-        return self._decorate_func(func)
+    def __call__(self, obj):
+        if type(obj).__name__ == 'function':
+            return self._decorate_func(obj)
+        if type(obj).__name__ == 'type':
+            return self._decorate_class(obj)
 
     def _decorate_func(self, fn):
         @six.wraps(fn)
@@ -282,6 +285,17 @@ class _immobilus(object):
                 return fn(*args, **kwargs)
 
         return wrapper
+
+    def _decorate_class(self, cls):
+        class _Meta(type):
+            def __new__(cls, name, bases, attrs):
+                for attr_name, attr in attrs.items():
+                    if callable(attr):
+                        attrs[attr_name] = self(attr)
+
+                return super(_Meta, cls).__new__(cls, name, bases, attrs)
+
+        return six.add_metaclass(_Meta)(cls)
 
     def __enter__(self):
         self.start()
@@ -326,7 +340,7 @@ class immobilus(_immobilus):
         if iscoroutinefunction(func):
             return self._decorate_coroutine(func)
 
-        return self._decorate_func(func)
+        return super().__call__(func)
 
     def _decorate_coroutine(self, coro):
         @six.wraps(coro)

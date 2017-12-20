@@ -123,7 +123,27 @@ As well as being a context manager, `immobilus` is also a decorator:
 
 ```
 
-It works even with coroutines since `python 3.5`
+It works even with classes
+
+```python
+
+>>> @immobilus('2017-10-20')
+... class Decorated(object):
+...     now = datetime.utcnow()
+...
+...     def first(self):
+...         return datetime.utcnow()
+...     
+...     def second(self):
+...         return self.now
+...
+>>> d = Decorated()
+>>> assert d.first().strftime('%Y-%m-%d %H:%M:%S') == '2017-10-20 00:00:00'
+>>> assert d.second().strftime('%Y-%m-%d %H:%M:%S') != '2017-10-20 00:00:00'
+
+```
+
+and coroutines (since `python 3.5`)
 
 ```python
 >>> import sys
