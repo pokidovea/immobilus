@@ -222,5 +222,5 @@ outer utcnow: 2017-10-20 12:00:00
 ```
 
 #### Special thanks for contribution:
-* Éloi Rivard (https://github.com/azmeuk)
+* Eloi Rivard (https://github.com/azmeuk)
 * Day Barr (https://github.com/daybarr)

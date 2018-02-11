@@ -240,7 +240,7 @@ invocations, or any combination) if you want to freeze different times.
 Special thanks for contribution:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
--  Éloi Rivard (https://github.com/azmeuk)
+-  Eloi Rivard (https://github.com/azmeuk)
 -  Day Barr (https://github.com/daybarr)
 
 .. |build| image:: https://secure.travis-ci.org/pokidovea/immobilus.svg?branch=master
