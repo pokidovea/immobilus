@@ -1,6 +1,12 @@
 Immobilus Changelog
 ===================
 
+1.4.2
+-----
+
+* Fix bug with usage of fake functions as class attributes
+* Support of python 2.6 has been canceled, because python-datutil now is not supporting python 2.6
+
 1.4
 -----
 
