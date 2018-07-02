@@ -51,6 +51,19 @@ def _datetime_to_utc_timestamp(dt):
     return _total_seconds(delta)
 
 
+def non_bindable(fn):
+    _class_name = fn.__name__ + '_class'
+
+    attrs = {
+        '__get__': lambda instance, obj, objtype=None: instance,
+        '__call__': lambda instance, *args, **kwargs: fn(*args, **kwargs)
+    }
+
+    _class = type(_class_name, (object, ), attrs)
+    return _class()
+
+
+@non_bindable
 def fake_time():
     if TIME_TO_FREEZE is not None:
         return _datetime_to_utc_timestamp(TIME_TO_FREEZE)
@@ -58,6 +71,7 @@ def fake_time():
         return original_time()
 
 
+@non_bindable
 def fake_localtime(seconds=None):
     if seconds is not None:
         return original_localtime(seconds)
@@ -68,6 +82,7 @@ def fake_localtime(seconds=None):
         return original_localtime()
 
 
+@non_bindable
 def fake_gmtime(seconds=None):
     if seconds is not None:
         return original_gmtime(seconds)
@@ -78,6 +93,7 @@ def fake_gmtime(seconds=None):
         return original_gmtime()
 
 
+@non_bindable
 def fake_strftime(format, t=None):
     if t is not None:
         return original_strftime(format, t)
@@ -88,6 +104,7 @@ def fake_strftime(format, t=None):
         return original_strftime(format)
 
 
+@non_bindable
 def fake_mktime(timetuple):
     # converts local timetuple to utc timestamp
     if TIME_TO_FREEZE is not None:
