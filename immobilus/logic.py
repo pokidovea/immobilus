@@ -247,6 +247,13 @@ class FakeDatetime(datetime):
         else:
             return super(FakeDatetime, self).timestamp()
 
+    @property
+    def nanosecond(self):
+        try:
+            return TIME_TO_FREEZE.nanosecond
+        except AttributeError:
+            return 0
+
 
 def pickle_fake_date(datetime_):
     # A pickle function for FakeDate
