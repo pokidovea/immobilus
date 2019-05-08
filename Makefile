@@ -1,5 +1,5 @@
 test:
-	pytest
+	tox
 
 publish:
 	python setup.py sdist upload

@@ -8,8 +8,12 @@ python:
   - 3.5
   - 3.6
   - 3.7
+  - 3.8-dev
 
-script: make test
+matrix:
+  allow_failures:
+     - python: 3.8-dev
+
+script: tox
 install:
-  - pip install .
-  - pip install -r requirements.txt
+  - pip install tox-travis
