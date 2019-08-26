@@ -20,7 +20,7 @@ You must `import immobilus` *before* `datetime` or `time`, or any other module w
 
 ```python
 >>> from immobilus import immobilus
->>> from datetime import datetime
+>>> from datetime import datetime, timedelta
 
 ```
 
@@ -113,11 +113,16 @@ You can move the frozen time point by calling the `tick` method:
 
 ```python
 >>> with immobilus('2019-08-21 12:00:00') as dt:
-        assert datetime(2019, 8, 21, 12, 0, 0) == datetime.now()
-        dt.tick()
-        assert datetime(2019, 8, 21, 12, 0, 1) == datetime.now()
-        dt.tick(timedelta(seconds=10))
-        assert datetime(2019, 8, 21, 12, 0, 11) == datetime.now()
+...     print(datetime.now())
+...     dt.tick()
+...     print(datetime.now())
+...     dt.tick(timedelta(seconds=10))
+...     print(datetime.now())
+...
+2019-08-21 12:00:00
+2019-08-21 12:00:01
+2019-08-21 12:00:11
+
 ```
 
 #### Using as a decorator
