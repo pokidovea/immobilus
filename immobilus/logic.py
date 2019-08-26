@@ -254,6 +254,10 @@ class FakeDatetime(datetime):
         except AttributeError:
             return 0
 
+    def tick(self, delta=timedelta(seconds=1)):
+        global TIME_TO_FREEZE
+        TIME_TO_FREEZE += delta
+
 
 def pickle_fake_date(datetime_):
     # A pickle function for FakeDate
@@ -323,6 +327,7 @@ class _immobilus(object):
 
     def __enter__(self):
         self.start()
+        return TIME_TO_FREEZE
 
     def __exit__(self, *args):
         self.stop()
