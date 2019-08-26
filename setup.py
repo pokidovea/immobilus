@@ -7,7 +7,7 @@ with open('README.rst', 'r') as f:
 
 setup(
     name='immobilus',
-    version='1.4.3',
+    version='1.4.4',
     description='Say `Immobilus!` to freeze your tests',
     long_description=long_description,
     author='Eugene Pokidov',

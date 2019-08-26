@@ -109,6 +109,17 @@ utcnow: 2017-10-20 09:00:00
 
 ```
 
+You can move the frozen time point by calling the `tick` method:
+
+```python
+>>> with immobilus('2019-08-21 12:00:00') as dt:
+        assert datetime(2019, 8, 21, 12, 0, 0) == datetime.now()
+        dt.tick()
+        assert datetime(2019, 8, 21, 12, 0, 1) == datetime.now()
+        dt.tick(timedelta(seconds=10))
+        assert datetime(2019, 8, 21, 12, 0, 11) == datetime.now()
+```
+
 #### Using as a decorator
 
 As well as being a context manager, `immobilus` is also a decorator:

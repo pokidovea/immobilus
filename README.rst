@@ -1,7 +1,7 @@
 immobilus
 =========
 
-|build| |Build status|
+|Download from PyPI| |build| |Build status|
 
 A simple time freezing tool for python tests. It mocks:
 
@@ -125,6 +125,17 @@ number:
     now:    2017-10-20 02:00:00
     utcnow: 2017-10-20 09:00:00
 
+You can move the frozen time point by calling the ``tick`` method:
+
+.. code:: python
+
+    >>> with immobilus('2019-08-21 12:00:00') as dt:
+            assert datetime(2019, 8, 21, 12, 0, 0) == datetime.now()
+            dt.tick()
+            assert datetime(2019, 8, 21, 12, 0, 1) == datetime.now()
+            dt.tick(timedelta(seconds=10))
+            assert datetime(2019, 8, 21, 12, 0, 11) == datetime.now()
+
 Using as a decorator
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -145,7 +156,7 @@ It works even with classes
 
 
     >>> @immobilus('2017-10-20')
-    ... class Decorated:
+    ... class Decorated(object):
     ...     now = datetime.utcnow()
     ...
     ...     def first(self):
@@ -243,6 +254,8 @@ Special thanks for contribution:
 -  Eloi Rivard (https://github.com/azmeuk)
 -  Day Barr (https://github.com/daybarr)
 
+.. |Download from PyPI| image:: https://img.shields.io/pypi/v/immobilus.svg
+   :target: https://pypi.python.org/pypi/immobilus
 .. |build| image:: https://secure.travis-ci.org/pokidovea/immobilus.svg?branch=master
    :target: https://travis-ci.org/pokidovea/immobilus
 .. |Build status| image:: https://ci.appveyor.com/api/projects/status/jpidjtu298ason8h?svg=true
