@@ -1,7 +1,7 @@
 immobilus
 =========
 
-|build| |Build status|
+|Download from PyPI| |build| |Build status|
 
 A simple time freezing tool for python tests. It mocks:
 
@@ -25,7 +25,7 @@ modules.
 .. code:: python
 
     >>> from immobilus import immobilus
-    >>> from datetime import datetime
+    >>> from datetime import datetime, timedelta
 
 For example, if you use
 `pytest <https://pypi.python.org/pypi/pytest>`__, you could add
@@ -125,6 +125,21 @@ number:
     now:    2017-10-20 02:00:00
     utcnow: 2017-10-20 09:00:00
 
+You can move the frozen time point by calling the ``tick`` method:
+
+.. code:: python
+
+    >>> with immobilus('2019-08-21 12:00:00') as dt:
+    ...     print(datetime.now())
+    ...     dt.tick()
+    ...     print(datetime.now())
+    ...     dt.tick(timedelta(seconds=10))
+    ...     print(datetime.now())
+    ...
+    2019-08-21 12:00:00
+    2019-08-21 12:00:01
+    2019-08-21 12:00:11
+
 Using as a decorator
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -145,7 +160,7 @@ It works even with classes
 
 
     >>> @immobilus('2017-10-20')
-    ... class Decorated:
+    ... class Decorated(object):
     ...     now = datetime.utcnow()
     ...
     ...     def first(self):
@@ -243,6 +258,8 @@ Special thanks for contribution:
 -  Eloi Rivard (https://github.com/azmeuk)
 -  Day Barr (https://github.com/daybarr)
 
+.. |Download from PyPI| image:: https://img.shields.io/pypi/v/immobilus.svg
+   :target: https://pypi.python.org/pypi/immobilus
 .. |build| image:: https://secure.travis-ci.org/pokidovea/immobilus.svg?branch=master
    :target: https://travis-ci.org/pokidovea/immobilus
 .. |Build status| image:: https://ci.appveyor.com/api/projects/status/jpidjtu298ason8h?svg=true

@@ -20,7 +20,7 @@ You must `import immobilus` *before* `datetime` or `time`, or any other module w
 
 ```python
 >>> from immobilus import immobilus
->>> from datetime import datetime
+>>> from datetime import datetime, timedelta
 
 ```
 
@@ -106,6 +106,22 @@ Of course, you can be behind UTC if you wish, by using a negative number:
 ...
 now:    2017-10-20 02:00:00
 utcnow: 2017-10-20 09:00:00
+
+```
+
+You can move the frozen time point by calling the `tick` method:
+
+```python
+>>> with immobilus('2019-08-21 12:00:00') as dt:
+...     print(datetime.now())
+...     dt.tick()
+...     print(datetime.now())
+...     dt.tick(timedelta(seconds=10))
+...     print(datetime.now())
+...
+2019-08-21 12:00:00
+2019-08-21 12:00:01
+2019-08-21 12:00:11
 
 ```
 
