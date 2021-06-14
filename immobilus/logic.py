@@ -1,8 +1,9 @@
-import six
 import sys
 import time
 import calendar
+from asyncio import iscoroutinefunction
 from datetime import datetime, date, timedelta, tzinfo
+from functools import wraps
 
 from dateutil import parser
 
@@ -39,16 +40,11 @@ original_date = date
 original_datetime = datetime
 
 
-def _total_seconds(timedelta):
-    """Python 2.6 does not support timedelta.total_seconds() or timedelta/timedelta"""
-    return float((timedelta.microseconds + (timedelta.seconds + timedelta.days * 24 * 3600) * 10**6)) / 10**6
-
-
 def _datetime_to_utc_timestamp(dt):
     assert dt.tzinfo is None
     delta = dt - original_datetime(1970, 1, 1)
 
-    return _total_seconds(delta)
+    return delta.total_seconds()
 
 
 def non_bindable(fn):
@@ -108,7 +104,7 @@ def fake_strftime(format, t=None):
 def fake_mktime(timetuple):
     # converts local timetuple to utc timestamp
     if TIME_TO_FREEZE is not None:
-        return calendar.timegm(timetuple) - _total_seconds(timedelta(hours=TZ_OFFSET))
+        return calendar.timegm(timetuple) - timedelta(hours=TZ_OFFSET).total_seconds()
     else:
         return original_mktime(timetuple)
 
@@ -119,8 +115,7 @@ class DateMeta(type):
         return isinstance(obj, date)
 
 
-@six.add_metaclass(DateMeta)
-class FakeDate(date):
+class FakeDate(date, metaclass=DateMeta):
 
     def __add__(self, other):
         result = date.__add__(self, other)
@@ -161,8 +156,7 @@ class DatetimeMeta(type):
         return isinstance(obj, datetime)
 
 
-@six.add_metaclass(DatetimeMeta)
-class FakeDatetime(datetime):
+class FakeDatetime(datetime, metaclass=DatetimeMeta):
 
     def __add__(self, other):
         result = datetime.__add__(self, other)
@@ -236,9 +230,6 @@ class FakeDatetime(datetime):
         )
 
     def timestamp(self):
-        if not six.PY3:
-            raise AttributeError('\'datetime.datetime\' object has no attribute \'timestamp\'')
-
         if TIME_TO_FREEZE:
             if self.tzinfo:
                 return _datetime_to_utc_timestamp(self.astimezone(utc).replace(tzinfo=None))
@@ -294,20 +285,22 @@ setattr(sys.modules['time'], 'strftime', fake_strftime)
 setattr(sys.modules['time'], 'mktime', fake_mktime)
 
 
-class _immobilus(object):
+class immobilus:
 
     def __init__(self, time_to_freeze, tz_offset=0):
         self.time_to_freeze = time_to_freeze
         self.tz_offset = tz_offset
 
     def __call__(self, obj):
+        if iscoroutinefunction(obj):
+            return self._decorate_coroutine(obj)
         if type(obj).__name__ == 'function':
             return self._decorate_func(obj)
         if type(obj).__name__ == 'type':
             return self._decorate_class(obj)
 
     def _decorate_func(self, fn):
-        @six.wraps(fn)
+        @wraps(fn)
         def wrapper(*args, **kwargs):
             with self:
                 return fn(*args, **kwargs)
@@ -316,14 +309,25 @@ class _immobilus(object):
 
     def _decorate_class(self, cls):
         class _Meta(type):
-            def __new__(cls, name, bases, attrs):
+            def __new__(mcs, name, bases, attrs):
                 for attr_name, attr in attrs.items():
                     if callable(attr):
                         attrs[attr_name] = self(attr)
 
-                return super(_Meta, cls).__new__(cls, name, bases, attrs)
+                return super(_Meta, mcs).__new__(mcs, name, bases, attrs)
 
-        return six.add_metaclass(_Meta)(cls)
+        cls_dict = dict(cls.__dict__)
+        cls_dict.pop('__dict__', None)
+
+        return _Meta(cls.__name__, cls.__bases__, cls_dict)
+
+    def _decorate_coroutine(self, coro):
+        @wraps(coro)
+        async def wrapper(*args, **kwargs):
+            with self:
+                return await coro(*args, **kwargs)
+
+        return wrapper
 
     def __enter__(self):
         self.start()
@@ -357,27 +361,3 @@ class _immobilus(object):
 
         TIME_TO_FREEZE = self.previous_time_to_freeze
         TZ_OFFSET = self.previous_tz_offset
-
-
-if sys.version_info[0:2] >= (3, 5):
-    six.exec_("""
-from asyncio import iscoroutinefunction
-
-class immobilus(_immobilus):
-
-    def __call__(self, func):
-        if iscoroutinefunction(func):
-            return self._decorate_coroutine(func)
-
-        return super().__call__(func)
-
-    def _decorate_coroutine(self, coro):
-        @six.wraps(coro)
-        async def wrapper(*args, **kwargs):
-            with self:
-                return await coro(*args, **kwargs)
-
-        return wrapper
-""")
-else:
-    immobilus = _immobilus

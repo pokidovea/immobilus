@@ -159,25 +159,19 @@ It works even with classes
 
 ```
 
-and coroutines (since `python 3.5`)
+and coroutines
 
 ```python
->>> import sys
->>> import six
->>>
->>> if sys.version_info[0:2] >= (3, 5):
-...    result = ''
-...    six.exec_("""
-... import asyncio
-...  
-... @immobilus('2017-10-20')
+>>> import asyncio
+>>> 
+>>> @immobilus('2017-10-20')
 ... async def test():
-...    return datetime.now()
+...     return datetime.now()
 ...
-... loop = asyncio.new_event_loop()
-... result = loop.run_until_complete(test())
-...     """)
-...    assert result.strftime('%Y-%m-%d %H:%M:%S') == '2017-10-20 00:00:00'
+>>> loop = asyncio.new_event_loop()
+>>> result = loop.run_until_complete(test())
+>>> 
+>>> assert result.strftime('%Y-%m-%d %H:%M:%S') == '2017-10-20 00:00:00'
 
 ```
 

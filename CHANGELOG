@@ -1,6 +1,11 @@
 Immobilus Changelog
 ===================
 
+1.5.0
+-----
+* Drop support of Python <=3.4
+
+
 1.4.2
 -----
 
