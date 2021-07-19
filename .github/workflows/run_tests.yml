@@ -29,4 +29,4 @@ jobs:
           flake8 . --count --max-complexity=10 --max-line-length=120 --statistics
       - name: Test with pytest
         run: |
-          pytest
+          pytest --junitxml=junit/test-results.xml --cov=. --cov-report=xml --cov-report=html
