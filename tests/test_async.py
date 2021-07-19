@@ -14,7 +14,7 @@ async def test_decorated_async_function():
 
 
 @pytest.mark.asyncio
-async def test_decorated_async_function():
+async def test_async_function_under_context():
     dt = datetime(2016, 1, 1, 13, 54)
     assert datetime.utcnow() != dt
 
@@ -33,4 +33,3 @@ def test_coroutine():
     loop = asyncio.new_event_loop()
     result = loop.run_until_complete(some_coroutine())
     assert result.strftime('%Y-%m-%d %H:%M:%S') == '2017-10-20 00:00:00'
-
