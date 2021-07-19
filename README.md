@@ -1,8 +1,7 @@
 # immobilus
 
 [![Download from PyPI](https://img.shields.io/pypi/v/immobilus.svg)](https://pypi.python.org/pypi/immobilus)
-[![build](https://secure.travis-ci.org/pokidovea/immobilus.svg?branch=master)](https://travis-ci.org/pokidovea/immobilus)
-[![Build status](https://ci.appveyor.com/api/projects/status/jpidjtu298ason8h?svg=true)](https://ci.appveyor.com/project/pokidovea/immobilus)
+![Tests](https://github.com/pokidovea/immobilus/actions/workflows/run_tests.yml/badge.svg)
 
 A simple time freezing tool for python tests. It mocks:
 * `datetime.date.today()`

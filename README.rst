@@ -1,7 +1,7 @@
 immobilus
 =========
 
-|Download from PyPI| |build| |Build status|
+|Download from PyPI| |Tests|
 
 A simple time freezing tool for python tests. It mocks:
 
@@ -24,8 +24,8 @@ modules.
 
 .. code:: python
 
-    >>> from immobilus import immobilus
-    >>> from datetime import datetime, timedelta
+   >>> from immobilus import immobilus
+   >>> from datetime import datetime, timedelta
 
 For example, if you use
 `pytest <https://pypi.python.org/pypi/pytest>`__, you could add
@@ -41,24 +41,24 @@ behaves normally.
 
 .. code:: python
 
-    >>> # It is unlikely that you are living in the past
-    >>> datetime.utcnow() == datetime(2017, 10, 20)
-    False
-    >>> # But with immobilus, you can pretend that you are
-    >>> with immobilus('2017-10-20'):
-    ...     datetime.utcnow() == datetime(2017, 10, 20)
-    ...
-    True
-    >>> # Once the context manager exits, immobilus deactivates.
-    >>> # We are back in the present.
-    >>> datetime.utcnow() == datetime(2017, 10, 20)
-    False
+   >>> # It is unlikely that you are living in the past
+   >>> datetime.utcnow() == datetime(2017, 10, 20)
+   False
+   >>> # But with immobilus, you can pretend that you are
+   >>> with immobilus('2017-10-20'):
+   ...     datetime.utcnow() == datetime(2017, 10, 20)
+   ...
+   True
+   >>> # Once the context manager exits, immobilus deactivates.
+   >>> # We are back in the present.
+   >>> datetime.utcnow() == datetime(2017, 10, 20)
+   False
 
 Specifying the freeze time
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 As shown above, you can use a string to describe the time to be frozen
-(e.g. ``'2017-10-20'``). Any values understood by the
+(e.g. ``'2017-10-20'``). Any values understood by the
 `dateutil.parser <https://dateutil.readthedocs.io/en/stable/parser.html>`__
 can be used.
 
@@ -66,13 +66,13 @@ You can also use a ``datetime.datetime`` object for the freeze time:
 
 .. code:: python
 
-    >>> naive_freeze_time = datetime(2017, 10, 20)
-    >>> with immobilus(naive_freeze_time):
-    ...     print('now:    %s' % datetime.now())
-    ...     print('utcnow: %s' % datetime.utcnow())
-    ...
-    now:    2017-10-20 00:00:00
-    utcnow: 2017-10-20 00:00:00
+   >>> naive_freeze_time = datetime(2017, 10, 20)
+   >>> with immobilus(naive_freeze_time):
+   ...     print('now:    %s' % datetime.now())
+   ...     print('utcnow: %s' % datetime.utcnow())
+   ...
+   now:    2017-10-20 00:00:00
+   utcnow: 2017-10-20 00:00:00
 
 ``immobilus`` will use the given ``datetime`` object to set the frozen
 UTC time *and* local time to the same value that you provide. If the
@@ -81,18 +81,18 @@ adjusted to UTC like so:
 
 .. code:: python
 
-    >>> import pytz
-    >>>
-    >>> # Freeze to 12:00 noon in Moscow (UTC+3)
-    >>> timezone = pytz.timezone('Europe/Moscow')
-    >>> aware_freeze_time = timezone.localize(datetime(2017, 10, 20, 12))
-    >>> with immobilus(aware_freeze_time):
-    ...     # 9:00am local time which is same as UTC
-    ...     print('now:    %s' % datetime.now())
-    ...     print('utcnow: %s' % datetime.utcnow())
-    ...
-    now:    2017-10-20 09:00:00
-    utcnow: 2017-10-20 09:00:00
+   >>> import pytz
+   >>>
+   >>> # Freeze to 12:00 noon in Moscow (UTC+3)
+   >>> timezone = pytz.timezone('Europe/Moscow')
+   >>> aware_freeze_time = timezone.localize(datetime(2017, 10, 20, 12))
+   >>> with immobilus(aware_freeze_time):
+   ...     # 9:00am local time which is same as UTC
+   ...     print('now:    %s' % datetime.now())
+   ...     print('utcnow: %s' % datetime.utcnow())
+   ...
+   now:    2017-10-20 09:00:00
+   utcnow: 2017-10-20 09:00:00
 
 If you want local time to differ from UTC, read on.
 
@@ -106,39 +106,39 @@ local time should be.
 
 .. code:: python
 
-    >>> with immobilus('2017-10-20 09:00', tz_offset=3):
-    ...     print('now:    %s' % datetime.now())
-    ...     print('utcnow: %s' % datetime.utcnow())
-    ...
-    now:    2017-10-20 12:00:00
-    utcnow: 2017-10-20 09:00:00
+   >>> with immobilus('2017-10-20 09:00', tz_offset=3):
+   ...     print('now:    %s' % datetime.now())
+   ...     print('utcnow: %s' % datetime.utcnow())
+   ...
+   now:    2017-10-20 12:00:00
+   utcnow: 2017-10-20 09:00:00
 
 Of course, you can be behind UTC if you wish, by using a negative
 number:
 
 .. code:: python
 
-    >>> with immobilus('2017-10-20 09:00', tz_offset=-7):
-    ...     print('now:    %s' % datetime.now())
-    ...     print('utcnow: %s' % datetime.utcnow())
-    ...
-    now:    2017-10-20 02:00:00
-    utcnow: 2017-10-20 09:00:00
+   >>> with immobilus('2017-10-20 09:00', tz_offset=-7):
+   ...     print('now:    %s' % datetime.now())
+   ...     print('utcnow: %s' % datetime.utcnow())
+   ...
+   now:    2017-10-20 02:00:00
+   utcnow: 2017-10-20 09:00:00
 
 You can move the frozen time point by calling the ``tick`` method:
 
 .. code:: python
 
-    >>> with immobilus('2019-08-21 12:00:00') as dt:
-    ...     print(datetime.now())
-    ...     dt.tick()
-    ...     print(datetime.now())
-    ...     dt.tick(timedelta(seconds=10))
-    ...     print(datetime.now())
-    ...
-    2019-08-21 12:00:00
-    2019-08-21 12:00:01
-    2019-08-21 12:00:11
+   >>> with immobilus('2019-08-21 12:00:00') as dt:
+   ...     print(datetime.now())
+   ...     dt.tick()
+   ...     print(datetime.now())
+   ...     dt.tick(timedelta(seconds=10))
+   ...     print(datetime.now())
+   ...
+   2019-08-21 12:00:00
+   2019-08-21 12:00:01
+   2019-08-21 12:00:11
 
 Using as a decorator
 ^^^^^^^^^^^^^^^^^^^^
@@ -147,52 +147,46 @@ As well as being a context manager, ``immobilus`` is also a decorator:
 
 .. code:: python
 
-    >>> @immobilus('2017-10-20')
-    ... def test():
-    ...     print(datetime.now())
-    ...
-    >>> test()
-    2017-10-20 00:00:00
+   >>> @immobilus('2017-10-20')
+   ... def test():
+   ...     print(datetime.now())
+   ...
+   >>> test()
+   2017-10-20 00:00:00
 
 It works even with classes
 
 .. code:: python
 
 
-    >>> @immobilus('2017-10-20')
-    ... class Decorated(object):
-    ...     now = datetime.utcnow()
-    ...
-    ...     def first(self):
-    ...         return datetime.utcnow()
-    ...
-    ...     def second(self):
-    ...         return self.now
-    ...
-    >>> d = Decorated()
-    >>> assert d.first().strftime('%Y-%m-%d %H:%M:%S') == '2017-10-20 00:00:00'
-    >>> assert d.second().strftime('%Y-%m-%d %H:%M:%S') != '2017-10-20 00:00:00'
+   >>> @immobilus('2017-10-20')
+   ... class Decorated(object):
+   ...     now = datetime.utcnow()
+   ...
+   ...     def first(self):
+   ...         return datetime.utcnow()
+   ...
+   ...     def second(self):
+   ...         return self.now
+   ...
+   >>> d = Decorated()
+   >>> assert d.first().strftime('%Y-%m-%d %H:%M:%S') == '2017-10-20 00:00:00'
+   >>> assert d.second().strftime('%Y-%m-%d %H:%M:%S') != '2017-10-20 00:00:00'
 
-and coroutines (since ``python 3.5``)
+and coroutines
 
 .. code:: python
 
-    >>> import sys
-    >>> import six
-    >>>
-    >>> if sys.version_info[0:2] >= (3, 5):
-    ...    result = ''
-    ...    six.exec_("""
-    ... import asyncio
-    ...
-    ... @immobilus('2017-10-20')
-    ... async def test():
-    ...    return datetime.now()
-    ...
-    ... loop = asyncio.new_event_loop()
-    ... result = loop.run_until_complete(test())
-    ...     """)
-    ...    assert result.strftime('%Y-%m-%d %H:%M:%S') == '2017-10-20 00:00:00'
+   >>> import asyncio
+   >>>
+   >>> @immobilus('2017-10-20')
+   ... async def test():
+   ...     return datetime.now()
+   ...
+   >>> loop = asyncio.new_event_loop()
+   >>> result = loop.run_until_complete(test())
+   >>>
+   >>> assert result.strftime('%Y-%m-%d %H:%M:%S') == '2017-10-20 00:00:00'
 
 Using directly
 ^^^^^^^^^^^^^^
@@ -201,32 +195,32 @@ Or you can activate and deactivate ``immobilus`` manually.
 
 .. code:: python
 
-    >>> freeze_time = datetime(2017, 10, 20)
-    >>> spell = immobilus(freeze_time)
-    >>> datetime.utcnow() == freeze_time
-    False
-    >>> spell.start()
-    FakeDatetime(2017, 10, 20, 0, 0)
-    >>> datetime.utcnow() == freeze_time
-    True
-    >>> datetime.utcnow()
-    FakeDatetime(2017, 10, 20, 0, 0)
-    >>> spell.stop()
-    >>> datetime.utcnow() == freeze_time
-    False
+   >>> freeze_time = datetime(2017, 10, 20)
+   >>> spell = immobilus(freeze_time)
+   >>> datetime.utcnow() == freeze_time
+   False
+   >>> spell.start()
+   FakeDatetime(2017, 10, 20, 0, 0)
+   >>> datetime.utcnow() == freeze_time
+   True
+   >>> datetime.utcnow()
+   FakeDatetime(2017, 10, 20, 0, 0)
+   >>> spell.stop()
+   >>> datetime.utcnow() == freeze_time
+   False
 
 This can be quite useful for those using the standard library
 ``unittest.TestCase`` e.g.
 
 .. code:: python
 
-    import unittest
+   import unittest
 
-    class SomeTests(unittest.TestCase):
-        def setUp(self):
-            spell = immobilus('2017-10-20')
-            spell.start()
-            self.addCleanup(spell.stop)
+   class SomeTests(unittest.TestCase):
+       def setUp(self):
+           spell = immobilus('2017-10-20')
+           spell.start()
+           self.addCleanup(spell.stop)
 
 Nesting
 ^^^^^^^
@@ -236,21 +230,21 @@ invocations, or any combination) if you want to freeze different times.
 
 .. code:: python
 
-    >>> with immobilus('2017-10-20 12:00'):
-    ...     print('outer now:    %s' % datetime.now())
-    ...     print('outer utcnow: %s' % datetime.utcnow())
-    ...     with immobilus('2017-10-21 12:00', tz_offset=5):
-    ...         print('inner now:    %s' % datetime.now())
-    ...         print('inner utcnow: %s' % datetime.utcnow())
-    ...     print('outer now:    %s' % datetime.now())
-    ...     print('outer utcnow: %s' % datetime.utcnow())
-    ...
-    outer now:    2017-10-20 12:00:00
-    outer utcnow: 2017-10-20 12:00:00
-    inner now:    2017-10-21 17:00:00
-    inner utcnow: 2017-10-21 12:00:00
-    outer now:    2017-10-20 12:00:00
-    outer utcnow: 2017-10-20 12:00:00
+   >>> with immobilus('2017-10-20 12:00'):
+   ...     print('outer now:    %s' % datetime.now())
+   ...     print('outer utcnow: %s' % datetime.utcnow())
+   ...     with immobilus('2017-10-21 12:00', tz_offset=5):
+   ...         print('inner now:    %s' % datetime.now())
+   ...         print('inner utcnow: %s' % datetime.utcnow())
+   ...     print('outer now:    %s' % datetime.now())
+   ...     print('outer utcnow: %s' % datetime.utcnow())
+   ...
+   outer now:    2017-10-20 12:00:00
+   outer utcnow: 2017-10-20 12:00:00
+   inner now:    2017-10-21 17:00:00
+   inner utcnow: 2017-10-21 12:00:00
+   outer now:    2017-10-20 12:00:00
+   outer utcnow: 2017-10-20 12:00:00
 
 Special thanks for contribution:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -260,7 +254,5 @@ Special thanks for contribution:
 
 .. |Download from PyPI| image:: https://img.shields.io/pypi/v/immobilus.svg
    :target: https://pypi.python.org/pypi/immobilus
-.. |build| image:: https://secure.travis-ci.org/pokidovea/immobilus.svg?branch=master
-   :target: https://travis-ci.org/pokidovea/immobilus
-.. |Build status| image:: https://ci.appveyor.com/api/projects/status/jpidjtu298ason8h?svg=true
-   :target: https://ci.appveyor.com/project/pokidovea/immobilus
+.. |Tests| image:: https://github.com/pokidovea/immobilus/actions/workflows/run_tests.yml/badge.svg
+
