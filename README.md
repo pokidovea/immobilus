@@ -1,8 +1,7 @@
 # immobilus
 
 [![Download from PyPI](https://img.shields.io/pypi/v/immobilus.svg)](https://pypi.python.org/pypi/immobilus)
-[![build](https://secure.travis-ci.org/pokidovea/immobilus.svg?branch=master)](https://travis-ci.org/pokidovea/immobilus)
-[![Build status](https://ci.appveyor.com/api/projects/status/jpidjtu298ason8h?svg=true)](https://ci.appveyor.com/project/pokidovea/immobilus)
+![Tests](https://github.com/pokidovea/immobilus/actions/workflows/run_tests.yml/badge.svg)
 
 A simple time freezing tool for python tests. It mocks:
 * `datetime.date.today()`
@@ -159,25 +158,19 @@ It works even with classes
 
 ```
 
-and coroutines (since `python 3.5`)
+and coroutines
 
 ```python
->>> import sys
->>> import six
->>>
->>> if sys.version_info[0:2] >= (3, 5):
-...    result = ''
-...    six.exec_("""
-... import asyncio
-...  
-... @immobilus('2017-10-20')
+>>> import asyncio
+>>> 
+>>> @immobilus('2017-10-20')
 ... async def test():
-...    return datetime.now()
+...     return datetime.now()
 ...
-... loop = asyncio.new_event_loop()
-... result = loop.run_until_complete(test())
-...     """)
-...    assert result.strftime('%Y-%m-%d %H:%M:%S') == '2017-10-20 00:00:00'
+>>> loop = asyncio.new_event_loop()
+>>> result = loop.run_until_complete(test())
+>>> 
+>>> assert result.strftime('%Y-%m-%d %H:%M:%S') == '2017-10-20 00:00:00'
 
 ```
 
