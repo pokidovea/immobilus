@@ -1,8 +1,9 @@
+"""Main library module to prepare the target `immobilus` class."""
+import calendar
 import sys
 import time
-import calendar
 from asyncio import iscoroutinefunction
-from datetime import datetime, date, timedelta, tzinfo
+from datetime import date, datetime, timedelta, tzinfo
 from functools import wraps
 
 from dateutil import parser
