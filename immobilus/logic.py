@@ -1,5 +1,6 @@
 """Main library module to prepare the target `immobilus` class."""
 import calendar
+import copyreg
 import sys
 import time
 from asyncio import iscoroutinefunction
@@ -7,11 +8,6 @@ from datetime import date, datetime, timedelta, tzinfo
 from functools import wraps
 
 from dateutil import parser
-
-try:
-    import copy_reg as copyreg
-except ImportError:
-    import copyreg
 
 TIME_TO_FREEZE = None
 TZ_OFFSET = 0
