@@ -90,11 +90,20 @@ def _datetime_to_utc_timestamp(dt):
 
 
 def non_bindable(fn):
-    _class_name = fn.__name__ + '_class'
+    """Enforce a decorated function to be non-bindable.
+
+    Parameters:
+        fn: callable
+            the decorated function.
+
+    Returns:
+        instance of a function-based class with get & call dunder methods.
+    """
+    _class_name = '{0}_class'.format(fn.__name__)
 
     attrs = {
-        '__get__': lambda instance, obj, objtype=None: instance,
-        '__call__': lambda instance, *args, **kwargs: fn(*args, **kwargs)
+        '__get__': lambda instance, any_object, any_object_type=None: instance,
+        '__call__': lambda instance, *args, **kwargs: fn(*args, **kwargs),
     }
 
     _class = type(_class_name, (object, ), attrs)
@@ -103,52 +112,97 @@ def non_bindable(fn):
 
 @non_bindable
 def fake_time():
+    """Get fake time either from Config or, if not present, from original_time().
+
+    Returns:
+        datetime object.
+    """
     if Config.time_to_freeze is not None:
         return _datetime_to_utc_timestamp(Config.time_to_freeze)
-    else:
-        return original_time()
+
+    return original_time()
 
 
 @non_bindable
 def fake_localtime(seconds=None):
+    """Get fake localtime.
+
+    Parameters:
+        seconds: numeric, default: None
+            to build fake time if provided
+
+    Returns:
+        local datetime tuple.
+    """
     if seconds is not None:
         return original_localtime(seconds)
 
     if Config.time_to_freeze is not None:
-        return (Config.time_to_freeze + timedelta(hours=Config.tz_offset)).timetuple()
-    else:
-        return original_localtime()
+        time_delta = timedelta(hours=Config.tz_offset)
+        return (Config.time_to_freeze + time_delta).timetuple()
+
+    return original_localtime()
 
 
 @non_bindable
 def fake_gmtime(seconds=None):
+    """Get fake gmtime.
+
+    Parameters:
+        seconds: numeric, default: None
+            to build fake time if provided
+
+    Returns:
+        gm datetime tuple.
+    """
     if seconds is not None:
         return original_gmtime(seconds)
 
     if Config.time_to_freeze is not None:
         return Config.time_to_freeze.timetuple()
-    else:
-        return original_gmtime()
+
+    return original_gmtime()
 
 
 @non_bindable
-def fake_strftime(format, t=None):
-    if t is not None:
-        return original_strftime(format, t)
+def fake_strftime(time_format, time_value=None):
+    """Get fake string of time.
+
+    Parameters:
+        time_format: str
+            time mask
+        time_value: datetime, default: None
+            value to be formatted in case if provided
+
+    Returns:
+        str: string of time
+    """
+    if time_value is not None:
+        return original_strftime(time_format, time_value)
 
     if Config.time_to_freeze is not None:
-        return original_strftime(format, Config.time_to_freeze.timetuple())
-    else:
-        return original_strftime(format)
+        time_tuple = Config.time_to_freeze.timetuple()
+        return original_strftime(time_format, time_tuple)
+
+    return original_strftime(time_format)
 
 
 @non_bindable
 def fake_mktime(timetuple):
-    # converts local timetuple to utc timestamp
+    """Convert local timetuple to utc timestamp.
+
+    Parameters:
+        timetuple: tuple
+            tuple of up to 9 time values: year, month, day...
+
+    Returns:
+        float: representing a datetime
+    """
     if Config.time_to_freeze is not None:
-        return calendar.timegm(timetuple) - timedelta(hours=Config.tz_offset).total_seconds()
-    else:
-        return original_mktime(timetuple)
+        time_delta_seconds = timedelta(hours=Config.tz_offset).total_seconds()
+        return calendar.timegm(timetuple) - time_delta_seconds
+
+    return original_mktime(timetuple)
 
 
 class DateMeta(type):
