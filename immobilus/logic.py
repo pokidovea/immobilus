@@ -9,8 +9,12 @@ from functools import wraps
 
 from dateutil import parser
 
-TIME_TO_FREEZE = None
-TZ_OFFSET = 0
+
+class Config(object):
+    """Changeable options."""
+
+    time_to_freeze = None
+    tz_offset = 0
 
 
 class UTC(tzinfo):
@@ -58,8 +62,8 @@ def non_bindable(fn):
 
 @non_bindable
 def fake_time():
-    if TIME_TO_FREEZE is not None:
-        return _datetime_to_utc_timestamp(TIME_TO_FREEZE)
+    if Config.time_to_freeze is not None:
+        return _datetime_to_utc_timestamp(Config.time_to_freeze)
     else:
         return original_time()
 
@@ -69,8 +73,8 @@ def fake_localtime(seconds=None):
     if seconds is not None:
         return original_localtime(seconds)
 
-    if TIME_TO_FREEZE is not None:
-        return (TIME_TO_FREEZE + timedelta(hours=TZ_OFFSET)).timetuple()
+    if Config.time_to_freeze is not None:
+        return (Config.time_to_freeze + timedelta(hours=Config.tz_offset)).timetuple()
     else:
         return original_localtime()
 
@@ -80,8 +84,8 @@ def fake_gmtime(seconds=None):
     if seconds is not None:
         return original_gmtime(seconds)
 
-    if TIME_TO_FREEZE is not None:
-        return TIME_TO_FREEZE.timetuple()
+    if Config.time_to_freeze is not None:
+        return Config.time_to_freeze.timetuple()
     else:
         return original_gmtime()
 
@@ -91,8 +95,8 @@ def fake_strftime(format, t=None):
     if t is not None:
         return original_strftime(format, t)
 
-    if TIME_TO_FREEZE is not None:
-        return original_strftime(format, TIME_TO_FREEZE.timetuple())
+    if Config.time_to_freeze is not None:
+        return original_strftime(format, Config.time_to_freeze.timetuple())
     else:
         return original_strftime(format)
 
@@ -100,8 +104,8 @@ def fake_strftime(format, t=None):
 @non_bindable
 def fake_mktime(timetuple):
     # converts local timetuple to utc timestamp
-    if TIME_TO_FREEZE is not None:
-        return calendar.timegm(timetuple) - timedelta(hours=TZ_OFFSET).total_seconds()
+    if Config.time_to_freeze is not None:
+        return calendar.timegm(timetuple) - timedelta(hours=Config.tz_offset).total_seconds()
     else:
         return original_mktime(timetuple)
 
@@ -135,7 +139,7 @@ class FakeDate(date, metaclass=DateMeta):
 
     @classmethod
     def today(cls):
-        _date = TIME_TO_FREEZE + timedelta(hours=TZ_OFFSET) if TIME_TO_FREEZE else date.today()
+        _date = Config.time_to_freeze + timedelta(hours=Config.tz_offset) if Config.time_to_freeze else date.today()
         return cls.from_datetime(_date)
 
     @classmethod
@@ -176,8 +180,8 @@ class FakeDatetime(datetime, metaclass=DatetimeMeta):
 
     @classmethod
     def utcnow(cls):
-        if TIME_TO_FREEZE:
-            _datetime = TIME_TO_FREEZE
+        if Config.time_to_freeze:
+            _datetime = Config.time_to_freeze
         else:
             _datetime = datetime.utcnow()
 
@@ -186,11 +190,11 @@ class FakeDatetime(datetime, metaclass=DatetimeMeta):
     @classmethod
     def now(cls, tz=None):
         assert tz is None or isinstance(tz, tzinfo)
-        if TIME_TO_FREEZE:
+        if Config.time_to_freeze:
             if tz:
-                _datetime = TIME_TO_FREEZE.replace(tzinfo=utc).astimezone(tz)
+                _datetime = Config.time_to_freeze.replace(tzinfo=utc).astimezone(tz)
             else:
-                _datetime = TIME_TO_FREEZE + timedelta(hours=TZ_OFFSET)
+                _datetime = Config.time_to_freeze + timedelta(hours=Config.tz_offset)
         else:
             _datetime = datetime.now(tz=tz)
 
@@ -200,13 +204,13 @@ class FakeDatetime(datetime, metaclass=DatetimeMeta):
     def fromtimestamp(cls, timestamp, tz=None):
         assert tz is None or isinstance(tz, tzinfo)
 
-        if TIME_TO_FREEZE and tz is None:
+        if Config.time_to_freeze and tz is None:
             # Standard library docs say
             # the timestamp is converted to the platform's local date and time,
             # and the returned datetime object is naive.
             _datetime = (
                 original_datetime.fromtimestamp(timestamp, utc).replace(tzinfo=None) +
-                timedelta(hours=TZ_OFFSET)
+                timedelta(hours=Config.tz_offset)
             )
         else:
             _datetime = original_datetime.fromtimestamp(timestamp, tz)
@@ -227,24 +231,23 @@ class FakeDatetime(datetime, metaclass=DatetimeMeta):
         )
 
     def timestamp(self):
-        if TIME_TO_FREEZE:
+        if Config.time_to_freeze:
             if self.tzinfo:
                 return _datetime_to_utc_timestamp(self.astimezone(utc).replace(tzinfo=None))
             else:
-                return _datetime_to_utc_timestamp(self - timedelta(hours=TZ_OFFSET))
+                return _datetime_to_utc_timestamp(self - timedelta(hours=Config.tz_offset))
         else:
             return super(FakeDatetime, self).timestamp()
 
     @property
     def nanosecond(self):
         try:
-            return TIME_TO_FREEZE.nanosecond
+            return Config.time_to_freeze.nanosecond
         except AttributeError:
             return 0
 
     def tick(self, delta=timedelta(seconds=1)):
-        global TIME_TO_FREEZE
-        TIME_TO_FREEZE += delta
+        Config.time_to_freeze += delta
 
 
 def pickle_fake_date(datetime_):
@@ -328,33 +331,28 @@ class immobilus:
 
     def __enter__(self):
         self.start()
-        return TIME_TO_FREEZE
+        return Config.time_to_freeze
 
     def __exit__(self, *args):
         self.stop()
 
     def start(self):
-        global TIME_TO_FREEZE
-        global TZ_OFFSET
 
-        self.previous_time_to_freeze = TIME_TO_FREEZE
-        self.previous_tz_offset = TZ_OFFSET
+        self.previous_time_to_freeze = Config.time_to_freeze
+        self.previous_tz_offset = Config.tz_offset
 
         if isinstance(self.time_to_freeze, original_date):
-            TIME_TO_FREEZE = self.time_to_freeze
+            Config.time_to_freeze = self.time_to_freeze
             # Convert to a naive UTC datetime if necessary
-            if TIME_TO_FREEZE.tzinfo:
-                TIME_TO_FREEZE = TIME_TO_FREEZE.astimezone(utc).replace(tzinfo=None)
+            if Config.time_to_freeze.tzinfo:
+                Config.time_to_freeze = Config.time_to_freeze.astimezone(utc).replace(tzinfo=None)
         else:
-            TIME_TO_FREEZE = parser.parse(self.time_to_freeze)
+            Config.time_to_freeze = parser.parse(self.time_to_freeze)
 
-        TZ_OFFSET = self.tz_offset
+        Config.tz_offset = self.tz_offset
 
         return self.time_to_freeze
 
     def stop(self):
-        global TIME_TO_FREEZE
-        global TZ_OFFSET
-
-        TIME_TO_FREEZE = self.previous_time_to_freeze
-        TZ_OFFSET = self.previous_tz_offset
+        Config.time_to_freeze = self.previous_time_to_freeze
+        Config.tz_offset = self.previous_tz_offset
