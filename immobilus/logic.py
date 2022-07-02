@@ -18,15 +18,42 @@ class Config(object):
 
 
 class UTC(tzinfo):
-    """UTC"""
+    """UTC."""
 
     def utcoffset(self, dt):
+        """Get zero timedelta.
+
+        Parameters:
+            dt: Any
+                not used at the moment
+
+        Returns:
+            timedelta of zero
+        """
         return timedelta(0)
 
     def tzname(self, dt):
-        return "UTC"
+        """Return 'UTC' string.
+
+        Parameters:
+            dt: Any
+                not used at the moment
+
+        Returns:
+            'UTC' string
+        """
+        return 'UTC'
 
     def dst(self, dt):
+        """Get zero timedelta.
+
+        Parameters:
+            dt: Any
+                not used at the moment
+
+        Returns:
+            timedelta of zero
+        """
         return timedelta(0)
 
 
@@ -41,8 +68,21 @@ original_date = date
 original_datetime = datetime
 
 
+class ArgumentTZinfoIsNotNone(Exception):
+    """Raise on cases when arguments 'tzinfo' property is not None."""
+
+    def __str__(self):
+        """Get exception str representation.
+
+        Returns:
+            str: Exception text representation.
+        """
+        return 'Arguments tzinfo must be None.'
+
+
 def _datetime_to_utc_timestamp(dt):
-    assert dt.tzinfo is None
+    if dt.tzinfo is not None:
+        raise ArgumentTZinfoIsNotNone
     delta = dt - original_datetime(1970, 1, 1)
 
     return delta.total_seconds()
