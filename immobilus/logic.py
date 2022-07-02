@@ -66,6 +66,7 @@ original_localtime = time.localtime
 original_strftime = time.strftime
 original_date = date
 original_datetime = datetime
+UNIX_EPOCH_ARGS = (1970, 1, 1)
 
 
 class ArgumentTZinfoIsNotNone(Exception):
@@ -83,7 +84,7 @@ class ArgumentTZinfoIsNotNone(Exception):
 def _datetime_to_utc_timestamp(dt):
     if dt.tzinfo is not None:
         raise ArgumentTZinfoIsNotNone
-    delta = dt - original_datetime(1970, 1, 1)
+    delta = dt - original_datetime(*UNIX_EPOCH_ARGS)
 
     return delta.total_seconds()
 
