@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
+"""Setup basic info about library based on README.rst."""
+
 from setuptools import setup
 
-with open('README.rst', 'r') as f:
-    long_description = f.read()
+with open('README.rst', 'r') as readme_file:
+    long_description = readme_file.read()
 
 setup(
     name='immobilus',
