@@ -18,14 +18,14 @@ class Config(object):
 
 
 class UTC(tzinfo):
-    """UTC."""
+    """Repeats an interface of a real timezone instance, but returns fake data."""
 
     def utcoffset(self, dt):
         """Get zero timedelta.
 
         Parameters:
             dt: Any
-                not used at the moment
+                datetime.tzinfo.utcoffset -> datetime -> timedelta showing offset from UTC
 
         Returns:
             timedelta of zero
@@ -37,7 +37,7 @@ class UTC(tzinfo):
 
         Parameters:
             dt: Any
-                not used at the moment
+                datetime.tzinfo.tzname -> datetime -> string name of time zone
 
         Returns:
             'UTC' string
@@ -49,7 +49,7 @@ class UTC(tzinfo):
 
         Parameters:
             dt: Any
-                not used at the moment
+                datetime.tzinfo.dst -> datetime -> DST offset as timedelta positive east of UTC
 
         Returns:
             timedelta of zero
