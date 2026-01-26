@@ -7,7 +7,7 @@ with open('README.rst', 'r') as f:
 
 setup(
     name='immobilus',
-    version='1.5.0',
+    version='1.5.1',
     description='Say `Immobilus!` to freeze your tests',
     long_description=long_description,
     author='Eugene Pokidov',
@@ -26,5 +26,9 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
     ],
 )

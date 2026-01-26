@@ -1,5 +1,5 @@
-pytest==5.1.1;
-pytest-asyncio==0.10.0; python_version >= '3.5'
-pytest-cov
+pytest==8.4.2
+pytest-asyncio==0.23.7; python_version >= '3.8'
+pytest-cov==6.2.0
 pytz
-flake8
+flake8==7.3.0

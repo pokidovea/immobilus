@@ -73,10 +73,10 @@ def test_tz_offset():
 def test_isinstance():
     with immobilus('1970-01-01 00:00:00'):
         mocked_dt = date.today()
-        assert type(mocked_dt) == FakeDate
+        assert type(mocked_dt) == FakeDate  # noqa
 
         original_dt = original_date.today()
-        assert type(original_dt) != FakeDate
+        assert type(original_dt) != FakeDate  # noqa
 
         assert isinstance(original_dt, FakeDate)
         assert isinstance(mocked_dt, original_date)
