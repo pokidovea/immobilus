@@ -31,7 +31,7 @@ jobs:
         run: |
           pytest --cov=. --cov-report=html
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v6
         with:
           name: pytest-results-${{ matrix.os }}-${{ matrix.python-version }}
           path: htmlcov/
