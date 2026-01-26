@@ -193,10 +193,10 @@ def test_fromtimestamp_with_tz_when_inactive():
 def test_isinstance():
     with immobilus('1970-01-01 00:00:00'):
         mocked_dt = datetime.utcnow()
-        assert type(mocked_dt) == FakeDatetime
+        assert type(mocked_dt) == FakeDatetime  # noqa
 
         original_dt = original_datetime.utcnow()
-        assert type(original_dt) != FakeDatetime
+        assert type(original_dt) != FakeDatetime  # noqa
 
         assert isinstance(original_dt, FakeDatetime)
         assert isinstance(mocked_dt, original_datetime)
