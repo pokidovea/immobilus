@@ -1,5 +1,8 @@
 Immobilus Changelog
 ===================
+1.5.1
+-----
+* Refresh dependencies and add support of Python 3.10-3.14
 
 1.5.0
 -----
