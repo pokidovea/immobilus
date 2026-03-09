@@ -23,13 +23,7 @@ You must `import immobilus` *before* `datetime` or `time`, or any other module w
 
 ```
 
-> ⚠️ **Important:** If `datetime` is already imported before `immobilus`, a `RuntimeError` will be raised:
-> ```
-> RuntimeError: immobilus must be imported before datetime.
-> Please ensure that `import immobilus` comes before any imports of `datetime` or modules that import it.
-> ```
-
-For example, if you use [pytest](https://pypi.python.org/pypi/pytest), you could add `import immobilus` into your root `conftest.py` file.
+> ✅ **pytest users:** When `immobilus` is installed, early loading is guaranteed automatically via a built-in pytest plugin registered via the `pytest11` entry point. You don't need to manually add `import immobilus` to `conftest.py` — pytest will load `immobilus` before any test modules are imported.
 
 #### Context manager
 

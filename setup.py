@@ -15,6 +15,7 @@ setup(
     url='https://github.com/pokidovea/immobilus',
     packages=['immobilus'],
     install_requires=['python-dateutil'],
+    entry_points={'pytest11': ['immobilus = immobilus.pytest_plugin']},
     include_package_data=True,
     license='Apache 2.0',
     classifiers=[
