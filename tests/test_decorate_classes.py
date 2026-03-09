@@ -1,4 +1,5 @@
 from immobilus import immobilus
+from tests.utils import utcnow
 
 from datetime import datetime
 
@@ -6,10 +7,10 @@ from datetime import datetime
 @immobilus('2017-01-01')
 class TestClassDecoration(object):
 
-    now = datetime.utcnow()
+    now = utcnow()
 
     def test_one(self):
-        assert datetime.utcnow() == datetime(2017, 1, 1)
+        assert utcnow() == datetime(2017, 1, 1)
 
     def test_two(self):
         assert self.now != datetime(2017, 1, 1)

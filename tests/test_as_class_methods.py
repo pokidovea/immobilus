@@ -2,8 +2,7 @@
 
 from immobilus import immobilus  # noqa
 from immobilus.logic import fake_time, fake_localtime, fake_gmtime, fake_strftime, fake_mktime
-
-from datetime import datetime
+from tests.utils import utcnow
 
 
 class SomeClass(object):
@@ -41,7 +40,7 @@ def test_fake_strftime():
 def test_fake_mktime():
     SomeClass.method = fake_mktime
 
-    timetuple = datetime.utcnow().timetuple()
+    timetuple = utcnow().timetuple()
 
     instance = SomeClass()
     instance.method(timetuple)

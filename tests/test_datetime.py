@@ -1,17 +1,16 @@
-import six
-
 from immobilus import immobilus
 from immobilus.logic import original_datetime, FakeDatetime
+from tests.utils import utcnow
 
 import pytz
 import platform
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 
-@pytest.mark.parametrize('datetime_function', [datetime.utcnow, datetime.now])
+@pytest.mark.parametrize('datetime_function', [utcnow, datetime.now])
 def test_decorator(datetime_function):
 
     dt = datetime(2016, 1, 1, 13, 54)
@@ -26,7 +25,7 @@ def test_decorator(datetime_function):
     assert datetime_function() != dt
 
 
-@pytest.mark.parametrize('datetime_function', [datetime.utcnow, datetime.now])
+@pytest.mark.parametrize('datetime_function', [utcnow, datetime.now])
 def test_context_manager(datetime_function):
 
     dt = datetime(2016, 1, 1, 13, 54)
@@ -38,7 +37,7 @@ def test_context_manager(datetime_function):
     assert datetime_function() != dt
 
 
-@pytest.mark.parametrize('datetime_function', [datetime.utcnow, datetime.now])
+@pytest.mark.parametrize('datetime_function', [utcnow, datetime.now])
 def test_nested_context_manager(datetime_function):
 
     dt1 = datetime(2016, 1, 1, 13, 54)
@@ -58,7 +57,7 @@ def test_nested_context_manager(datetime_function):
     assert datetime_function() != dt2
 
 
-@pytest.mark.parametrize('datetime_function', [datetime.utcnow, datetime.now])
+@pytest.mark.parametrize('datetime_function', [utcnow, datetime.now])
 def test_start_stop(datetime_function):
 
     dt = datetime(2016, 1, 1, 13, 54)
@@ -83,17 +82,17 @@ def test_datetime_object():
 
 
 def test_datetime_each_time_must_be_different():
-    dt1 = datetime.utcnow()
+    dt1 = utcnow()
     # Sadly, Windows gives us only millisecond resolution, which is
     # insufficient. We have to wait a while for time to move on.
     if platform.system() == 'Windows':
         time.sleep(0.001)
-    dt2 = datetime.utcnow()
+    dt2 = utcnow()
 
     assert dt1 != dt2
 
 
-@pytest.mark.parametrize('datetime_function', [datetime.utcnow, datetime.now])
+@pytest.mark.parametrize('datetime_function', [utcnow, datetime.now])
 def test_datetime_now_is_naive(datetime_function):
     assert datetime_function().tzinfo is None
 
@@ -119,7 +118,7 @@ def test_subtraction():
 def test_now_with_tz_offset():
     with immobilus('2016-01-01 13:54', tz_offset=3):
         dt = datetime.now()
-        assert dt == datetime.utcnow() + timedelta(hours=3)
+        assert dt == utcnow() + timedelta(hours=3)
         assert dt.tzinfo is None
 
 
@@ -144,7 +143,7 @@ def test_now_with_timezone_and_tz_offset():
     timezone = pytz.timezone('Europe/Samara')  # UTC + 4
     with immobilus('2016-01-01 13:54', tz_offset=3):
         dt = datetime.now(tz=timezone)
-        expected_dt = datetime.utcnow() + timedelta(hours=4)
+        expected_dt = utcnow() + timedelta(hours=4)
 
         assert dt.year == expected_dt.year
         assert dt.month == expected_dt.month
@@ -195,7 +194,7 @@ def test_isinstance():
         mocked_dt = datetime.utcnow()
         assert type(mocked_dt) == FakeDatetime  # noqa
 
-        original_dt = original_datetime.utcnow()
+        original_dt = original_datetime.now(timezone.utc).replace(tzinfo=None)
         assert type(original_dt) != FakeDatetime  # noqa
 
         assert isinstance(original_dt, FakeDatetime)
@@ -205,37 +204,21 @@ def test_isinstance():
 def test_timestamp_from_naive_datetime_without_offset():
     with immobilus('2017-01-01 00:00:00'):
         dt = datetime(1970, 1, 1, 0, 0)
-        if six.PY2:
-            with pytest.raises(AttributeError):
-                dt.timestamp()
-        else:
-            assert dt.timestamp() == 0
+        assert dt.timestamp() == 0
 
 
 def test_timestamp_from_naive_datetime_with_offset():
     # Naive datetime instances are assumed to represent local time
     with immobilus('2017-01-01 00:00:00', tz_offset=2):
         dt = datetime(1970, 1, 1, 0, 0)
-        if six.PY2:
-            with pytest.raises(AttributeError):
-                dt.timestamp()
-        else:
-            assert dt.timestamp() == -2 * 3600
+        assert dt.timestamp() == -2 * 3600
 
 
 def test_timestamp_from_aware_datetime():
     timezone = pytz.timezone('Europe/Moscow')
     dt = timezone.localize(datetime(1970, 1, 1, 0, 0))
 
-    if six.PY2:
-        with pytest.raises(AttributeError):
-            dt.timestamp()
-    else:
-        assert dt.timestamp() == -3 * 3600
+    assert dt.timestamp() == -3 * 3600
 
     with immobilus('2017-01-01 00:00:00'):
-        if six.PY2:
-            with pytest.raises(AttributeError):
-                dt.timestamp()
-        else:
-            assert dt.timestamp() == -3 * 3600
+        assert dt.timestamp() == -3 * 3600

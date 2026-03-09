@@ -3,7 +3,7 @@ import time
 import calendar
 from asyncio import iscoroutinefunction
 from contextvars import ContextVar
-from datetime import datetime, date, timedelta, tzinfo
+from datetime import datetime, date, timedelta, tzinfo, timezone
 from functools import wraps
 
 from dateutil import parser
@@ -197,7 +197,10 @@ class FakeDatetime(datetime, metaclass=DatetimeMeta):
         if TIME_TO_FREEZE:
             _datetime = TIME_TO_FREEZE
         else:
-            _datetime = datetime.utcnow()
+            if sys.version_info >= (3, 12):
+                _datetime = datetime.now(timezone.utc).replace(tzinfo=None)
+            else:
+                _datetime = datetime.utcnow()
 
         return cls.from_datetime(_datetime)
 
