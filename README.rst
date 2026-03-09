@@ -251,6 +251,40 @@ multiple times to move between arbitrary points in time:
    2025-06-01 00:00:00
    2025-12-31 23:59:59
 
+Using as a pytest marker
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you use pytest, you can freeze time for a test using the
+``@pytest.mark.immobilus`` marker. The marker accepts the same arguments
+as the ``immobilus`` context manager: a time string (or ``datetime``
+object), an optional ``tz_offset``, and an optional ``tick`` flag.
+
+.. code:: python
+
+   import pytest
+   from datetime import datetime
+
+   @pytest.mark.immobilus('2017-10-20')
+   def test_something():
+       assert datetime.now() == datetime(2017, 10, 20)
+
+You can also pass ``tz_offset`` and ``tick`` as keyword arguments:
+
+.. code:: python
+
+   @pytest.mark.immobilus('2017-10-20 09:00', tz_offset=3)
+   def test_with_offset():
+       assert datetime.now() == datetime(2017, 10, 20, 12, 0, 0)
+
+   @pytest.mark.immobilus('2017-10-20 00:00:00', tick=True)
+   def test_with_tick():
+       assert datetime.now().date() == datetime(2017, 10, 20).date()
+
+..
+
+   ✅ No additional configuration is needed — the marker is registered
+   automatically when ``immobilus`` is installed.
+
 Using as a decorator
 ^^^^^^^^^^^^^^^^^^^^
 
