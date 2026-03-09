@@ -3,17 +3,11 @@ immobilus
 
 |Download from PyPI| |Tests|
 
-A simple time freezing tool for python tests. It mocks:
-
-* ``datetime.date.today()``
-* ``datetime.datetime.now()``
-* ``datetime.datetime.utcnow()``
-* ``datetime.datetime.fromtimestamp()``
-* ``time.time()``
-* ``time.gmtime()``
-* ``time.localtime()``
-* ``time.strftime()``
-* ``time.mktime()``
+A simple time freezing tool for python tests. It mocks: \*
+``datetime.date.today()`` \* ``datetime.datetime.now()`` \*
+``datetime.datetime.utcnow()`` \* ``datetime.datetime.fromtimestamp()``
+\* ``time.time()`` \* ``time.gmtime()`` \* ``time.localtime()`` \*
+``time.strftime()`` \* ``time.mktime()``
 
 Usage
 -----
@@ -27,16 +21,13 @@ modules.
    >>> from immobilus import immobilus
    >>> from datetime import datetime, timedelta
 
-.. warning::
+..
 
-   If ``datetime`` is already imported before ``immobilus``, a ``RuntimeError`` will be raised::
-
-      RuntimeError: immobilus must be imported before datetime.
-      Please ensure that `import immobilus` comes before any imports of `datetime` or modules that import it.
-
-For example, if you use
-`pytest <https://pypi.python.org/pypi/pytest>`__, you could add
-``import immobilus`` into your root ``conftest.py`` file.
+   ✅ **pytest users:** When ``immobilus`` is installed, early loading
+   is guaranteed automatically via a built-in pytest plugin registered
+   via the ``pytest11`` entry point. You don’t need to manually add
+   ``import immobilus`` to ``conftest.py`` — pytest will load
+   ``immobilus`` before any test modules are imported.
 
 Context manager
 ^^^^^^^^^^^^^^^
@@ -132,20 +123,133 @@ number:
    now:    2017-10-20 02:00:00
    utcnow: 2017-10-20 09:00:00
 
-You can move the frozen time point by calling the ``tick`` method:
+Letting time tick from a frozen point
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, time is completely frozen. If you want time to continue
+flowing from the frozen point, use ``tick=True``:
 
 .. code:: python
 
-   >>> with immobilus('2019-08-21 12:00:00') as dt:
-   ...     print(datetime.now())
-   ...     dt.tick()
-   ...     print(datetime.now())
-   ...     dt.tick(timedelta(seconds=10))
-   ...     print(datetime.now())
+   >>> import time
+   >>> with immobilus('2025-01-01 00:00:00', tick=True):
+   ...     print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))   # starts at the frozen time
+   ...     time.sleep(2)
+   ...     print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))   # 2 seconds have passed
    ...
-   2019-08-21 12:00:00
-   2019-08-21 12:00:01
-   2019-08-21 12:00:11
+   2025-01-01 00:00:00
+   2025-01-01 00:00:02
+
+This works for all mocked functions: ``datetime.now()``,
+``datetime.utcnow()``, ``date.today()``, ``time.time()``,
+``time.gmtime()``, ``time.localtime()``, and ``time.strftime()``.
+
+Outside the context manager, the original system time is restored:
+
+.. code:: python
+
+   >>> datetime.utcnow() == datetime(2025, 1, 1)
+   False
+
+Shifting frozen time
+^^^^^^^^^^^^^^^^^^^^
+
+You can shift the frozen time forward (or backward) by a given amount
+using the ``shift`` method on the clock object returned by the context
+manager. It accepts ``weeks``, ``days``, ``hours``, ``minutes``, and
+``seconds`` as keyword arguments:
+
+.. code:: python
+
+   >>> with immobilus('2025-01-01 00:00:00') as clock:
+   ...     clock.shift(seconds=30)
+   ...     print(datetime.utcnow())
+   ...
+   2025-01-01 00:00:30
+
+You can combine multiple units in a single call:
+
+.. code:: python
+
+   >>> with immobilus('2025-01-01 00:00:00') as clock:
+   ...     clock.shift(weeks=1, days=3, hours=4, minutes=5, seconds=6)
+   ...     print(datetime.utcnow())
+   ...
+   2025-01-11 04:05:06
+
+Negative values shift time backward:
+
+.. code:: python
+
+   >>> with immobilus('2025-06-15 12:00:00') as clock:
+   ...     clock.shift(days=-5)
+   ...     print(datetime.utcnow())
+   ...
+   2025-06-10 12:00:00
+
+``shift`` can be called multiple times; each call moves the frozen time
+relative to its current position:
+
+.. code:: python
+
+   >>> with immobilus('2025-01-01 00:00:00') as clock:
+   ...     clock.shift(seconds=10)
+   ...     print(datetime.utcnow())
+   ...     clock.shift(seconds=20)
+   ...     print(datetime.utcnow())
+   ...
+   2025-01-01 00:00:10
+   2025-01-01 00:00:30
+
+Jumping to a specific time
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can jump the frozen time to an arbitrary point using the ``jump``
+method on the clock object. It accepts either a date string (parsed with
+``dateutil.parser``) or a ``datetime`` object:
+
+.. code:: python
+
+   >>> with immobilus('2025-01-01 00:00:00') as clock:
+   ...     clock.jump('2025-06-15 12:30:00')
+   ...     print(datetime.utcnow())
+   ...
+   2025-06-15 12:30:00
+
+.. code:: python
+
+   >>> from datetime import datetime
+   >>> with immobilus('2025-01-01 00:00:00') as clock:
+   ...     clock.jump(datetime(2025, 3, 20, 8, 0, 0))
+   ...     print(datetime.utcnow())
+   ...
+   2025-03-20 08:00:00
+
+Timezone-aware strings and ``datetime`` objects are automatically
+converted to UTC:
+
+.. code:: python
+
+   >>> with immobilus('2025-01-01 00:00:00') as clock:
+   ...     clock.jump('2025-03-20 11:00:00+03:00')
+   ...     print(datetime.utcnow())
+   ...
+   2025-03-20 08:00:00
+
+Unlike ``shift``, ``jump`` sets the frozen time to an absolute value
+rather than moving it by a relative delta. You can call ``jump``
+multiple times to move between arbitrary points in time:
+
+.. code:: python
+
+   >>> with immobilus('2025-01-01 00:00:00') as clock:
+   ...     clock.jump('2025-06-01 00:00:00')
+   ...     print(datetime.utcnow())
+   ...     clock.jump(datetime(2025, 12, 31, 23, 59, 59))
+   ...     print(datetime.utcnow())
+   ...
+   2025-06-01 00:00:00
+   2025-12-31 23:59:59
 
 Using as a decorator
 ^^^^^^^^^^^^^^^^^^^^
@@ -172,7 +276,7 @@ It works even with classes
    ...
    ...     def first(self):
    ...         return datetime.utcnow()
-   ...
+   ...     
    ...     def second(self):
    ...         return self.now
    ...
@@ -185,14 +289,14 @@ and coroutines
 .. code:: python
 
    >>> import asyncio
-   >>>
+   >>> 
    >>> @immobilus('2017-10-20')
    ... async def test():
    ...     return datetime.now()
    ...
    >>> loop = asyncio.new_event_loop()
    >>> result = loop.run_until_complete(test())
-   >>>
+   >>> 
    >>> assert result.strftime('%Y-%m-%d %H:%M:%S') == '2017-10-20 00:00:00'
 
 Using directly
@@ -262,4 +366,3 @@ Special thanks for contribution:
 .. |Download from PyPI| image:: https://img.shields.io/pypi/v/immobilus.svg
    :target: https://pypi.python.org/pypi/immobilus
 .. |Tests| image:: https://github.com/pokidovea/immobilus/actions/workflows/run_tests.yml/badge.svg
-

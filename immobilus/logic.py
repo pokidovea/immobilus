@@ -16,10 +16,16 @@ except ImportError:
 
 _TIME_TO_FREEZE: ContextVar = ContextVar('time_to_freeze', default=None)
 _TZ_OFFSET: ContextVar = ContextVar('tz_offset', default=0)
+_TICK_START: ContextVar = ContextVar('tick_start', default=None)
 
 
 def _get_time_to_freeze():
-    return _TIME_TO_FREEZE.get()
+    frozen = _TIME_TO_FREEZE.get()
+    tick_start = _TICK_START.get()
+    if frozen is not None and tick_start is not None:
+        elapsed = original_datetime.now() - tick_start
+        return frozen + elapsed
+    return frozen
 
 
 def _get_tz_offset():
@@ -303,11 +309,13 @@ setattr(sys.modules['time'], 'mktime', fake_mktime)
 
 class immobilus:
 
-    def __init__(self, time_to_freeze, tz_offset=0):
+    def __init__(self, time_to_freeze, tz_offset=0, tick=False):
         self.time_to_freeze = time_to_freeze
         self.tz_offset = tz_offset
+        self.tick = tick
         self._token_time = None
         self._token_tz = None
+        self._token_tick = None
 
     def __call__(self, obj):
         if iscoroutinefunction(obj):
@@ -366,6 +374,10 @@ class immobilus:
 
         self._token_time = _TIME_TO_FREEZE.set(new_time)
         self._token_tz = _TZ_OFFSET.set(self.tz_offset)
+        if self.tick:
+            self._token_tick = _TICK_START.set(original_datetime.now())
+        else:
+            self._token_tick = _TICK_START.set(None)
 
         return self.time_to_freeze
 
@@ -376,6 +388,9 @@ class immobilus:
         if self._token_tz is not None:
             _TZ_OFFSET.reset(self._token_tz)
             self._token_tz = None
+        if self._token_tick is not None:
+            _TICK_START.reset(self._token_tick)
+            self._token_tick = None
 
     def shift(self, weeks=0, days=0, hours=0, minutes=0, seconds=0):
         current = _get_time_to_freeze()

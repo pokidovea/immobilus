@@ -108,6 +108,32 @@ utcnow: 2017-10-20 09:00:00
 
 ```
 
+#### Letting time tick from a frozen point
+
+By default, time is completely frozen. If you want time to continue flowing from the frozen point, use `tick=True`:
+
+```python
+>>> import time
+>>> with immobilus('2025-01-01 00:00:00', tick=True):
+...     print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))   # starts at the frozen time
+...     time.sleep(2)
+...     print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))   # 2 seconds have passed
+...
+2025-01-01 00:00:00
+2025-01-01 00:00:02
+
+```
+
+This works for all mocked functions: `datetime.now()`, `datetime.utcnow()`, `date.today()`, `time.time()`, `time.gmtime()`, `time.localtime()`, and `time.strftime()`.
+
+Outside the context manager, the original system time is restored:
+
+```python
+>>> datetime.utcnow() == datetime(2025, 1, 1)
+False
+
+```
+
 #### Shifting frozen time
 
 You can shift the frozen time forward (or backward) by a given amount using the `shift` method on the clock object returned by the context manager. It accepts `weeks`, `days`, `hours`, `minutes`, and `seconds` as keyword arguments:
