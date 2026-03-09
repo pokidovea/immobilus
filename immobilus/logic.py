@@ -265,11 +265,6 @@ class FakeDatetime(datetime, metaclass=DatetimeMeta):
         except AttributeError:
             return 0
 
-    def tick(self, delta=timedelta(seconds=1)):
-        current = _get_time_to_freeze()
-        if current is not None:
-            _TIME_TO_FREEZE.set(current + delta)
-
 
 def pickle_fake_date(datetime_):
     # A pickle function for FakeDate
@@ -354,8 +349,8 @@ class immobilus:
         return wrapper
 
     def __enter__(self):
-        result = self.start()
-        return _get_time_to_freeze()
+        self.start()
+        return self
 
     def __exit__(self, *args):
         self.stop()
@@ -381,3 +376,15 @@ class immobilus:
         if self._token_tz is not None:
             _TZ_OFFSET.reset(self._token_tz)
             self._token_tz = None
+
+    def shift(self, weeks=0, days=0, hours=0, minutes=0, seconds=0):
+        current = _get_time_to_freeze()
+        if current is not None:
+            delta = timedelta(
+                weeks=weeks,
+                days=days,
+                hours=hours,
+                minutes=minutes,
+                seconds=seconds,
+            )
+            _TIME_TO_FREEZE.set(current + delta)

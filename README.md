@@ -114,19 +114,52 @@ utcnow: 2017-10-20 09:00:00
 
 ```
 
-You can move the frozen time point by calling the `tick` method:
+#### Shifting frozen time
+
+You can shift the frozen time forward (or backward) by a given amount using the `shift` method on the clock object returned by the context manager. It accepts `weeks`, `days`, `hours`, `minutes`, and `seconds` as keyword arguments:
 
 ```python
->>> with immobilus('2019-08-21 12:00:00') as dt:
-...     print(datetime.now())
-...     dt.tick()
-...     print(datetime.now())
-...     dt.tick(timedelta(seconds=10))
-...     print(datetime.now())
+>>> with immobilus('2025-01-01 00:00:00') as clock:
+...     clock.shift(seconds=30)
+...     print(datetime.utcnow())
 ...
-2019-08-21 12:00:00
-2019-08-21 12:00:01
-2019-08-21 12:00:11
+2025-01-01 00:00:30
+
+```
+
+You can combine multiple units in a single call:
+
+```python
+>>> with immobilus('2025-01-01 00:00:00') as clock:
+...     clock.shift(weeks=1, days=3, hours=4, minutes=5, seconds=6)
+...     print(datetime.utcnow())
+...
+2025-01-11 04:05:06
+
+```
+
+Negative values shift time backward:
+
+```python
+>>> with immobilus('2025-06-15 12:00:00') as clock:
+...     clock.shift(days=-5)
+...     print(datetime.utcnow())
+...
+2025-06-10 12:00:00
+
+```
+
+`shift` can be called multiple times; each call moves the frozen time relative to its current position:
+
+```python
+>>> with immobilus('2025-01-01 00:00:00') as clock:
+...     clock.shift(seconds=10)
+...     print(datetime.utcnow())
+...     clock.shift(seconds=20)
+...     print(datetime.utcnow())
+...
+2025-01-01 00:00:10
+2025-01-01 00:00:30
 
 ```
 
