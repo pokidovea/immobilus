@@ -1,5 +1,16 @@
 Immobilus Changelog
 ===================
+2.0.0
+-----
+* Add thread safety and async context isolation using `ContextVar` for per-thread/context time freezing
+* Refactor `datetime` handling to use unified `utcnow` helper; add tests for Python 3.12+ support; expand test matrix and drop legacy Python versions
+* Improve type checking with `inspect` module; add error handling for unsupported object types
+* Add `shift` method for time manipulation; remove deprecated `tick` method
+* Add pytest plugin for automatic `immobilus` loading; remove runtime import order check
+* Add `jump` method for precise time manipulation
+* Add `tick` option to allow time to progress from frozen point
+* Add pytest marker support for freezing time
+
 1.5.1
 -----
 * Refresh dependencies and add support of Python 3.10-3.14
