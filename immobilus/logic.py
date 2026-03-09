@@ -1,6 +1,7 @@
 import sys
 import time
 import calendar
+import inspect
 from asyncio import iscoroutinefunction
 from contextvars import ContextVar
 from datetime import datetime, date, timedelta, tzinfo, timezone
@@ -316,10 +317,11 @@ class immobilus:
     def __call__(self, obj):
         if iscoroutinefunction(obj):
             return self._decorate_coroutine(obj)
-        if type(obj).__name__ == 'function':
+        if inspect.isfunction(obj) or inspect.ismethod(obj):
             return self._decorate_func(obj)
-        if type(obj).__name__ == 'type':
+        if inspect.isclass(obj):
             return self._decorate_class(obj)
+        raise TypeError('Unsupported object type: ' + repr(type(obj)))
 
     def _decorate_func(self, fn):
         @wraps(fn)
@@ -332,7 +334,7 @@ class immobilus:
     def _decorate_class(self, cls):
         class _Meta(type):
             def __new__(mcs, name, bases, attrs):
-                for attr_name, attr in attrs.items():
+                for attr_name, attr in list(attrs.items()):
                     if callable(attr):
                         attrs[attr_name] = self(attr)
 
