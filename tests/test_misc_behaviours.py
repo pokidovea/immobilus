@@ -22,8 +22,10 @@ def test_call_works_with_lambda():
 def test_call_works_with_regular_function():
     """inspect.isfunction should correctly detect regular functions."""
     freezer = immobilus("2021-06-15 12:00:00")
+
     def get_now():
         return utcnow()
+
     decorated = freezer(get_now)
     assert decorated() == datetime(2021, 6, 15, 12, 0, 0)
 
