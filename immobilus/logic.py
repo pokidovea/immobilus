@@ -388,3 +388,16 @@ class immobilus:
                 seconds=seconds,
             )
             _TIME_TO_FREEZE.set(current + delta)
+
+    def jump(self, target):
+        if isinstance(target, original_datetime):
+            new_time = target
+            if new_time.tzinfo:
+                new_time = new_time.astimezone(utc).replace(tzinfo=None)
+        elif isinstance(target, str):
+            new_time = parser.parse(target)
+            if new_time.tzinfo:
+                new_time = new_time.astimezone(utc).replace(tzinfo=None)
+        else:
+            raise TypeError('jump() accepts a datetime object or a date string, got: ' + repr(type(target)))
+        _TIME_TO_FREEZE.set(new_time)

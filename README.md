@@ -157,6 +157,54 @@ Negative values shift time backward:
 
 ```
 
+#### Jumping to a specific time
+
+You can jump the frozen time to an arbitrary point using the `jump` method on the clock object. It accepts either a date string (parsed with `dateutil.parser`) or a `datetime` object:
+
+```python
+>>> with immobilus('2025-01-01 00:00:00') as clock:
+...     clock.jump('2025-06-15 12:30:00')
+...     print(datetime.utcnow())
+...
+2025-06-15 12:30:00
+
+```
+
+```python
+>>> from datetime import datetime
+>>> with immobilus('2025-01-01 00:00:00') as clock:
+...     clock.jump(datetime(2025, 3, 20, 8, 0, 0))
+...     print(datetime.utcnow())
+...
+2025-03-20 08:00:00
+
+```
+
+Timezone-aware strings and `datetime` objects are automatically converted to UTC:
+
+```python
+>>> with immobilus('2025-01-01 00:00:00') as clock:
+...     clock.jump('2025-03-20 11:00:00+03:00')
+...     print(datetime.utcnow())
+...
+2025-03-20 08:00:00
+
+```
+
+Unlike `shift`, `jump` sets the frozen time to an absolute value rather than moving it by a relative delta. You can call `jump` multiple times to move between arbitrary points in time:
+
+```python
+>>> with immobilus('2025-01-01 00:00:00') as clock:
+...     clock.jump('2025-06-01 00:00:00')
+...     print(datetime.utcnow())
+...     clock.jump(datetime(2025, 12, 31, 23, 59, 59))
+...     print(datetime.utcnow())
+...
+2025-06-01 00:00:00
+2025-12-31 23:59:59
+
+```
+
 #### Using as a decorator
 
 As well as being a context manager, `immobilus` is also a decorator:
