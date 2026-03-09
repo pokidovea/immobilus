@@ -27,6 +27,13 @@ modules.
    >>> from immobilus import immobilus
    >>> from datetime import datetime, timedelta
 
+.. warning::
+
+   If ``datetime`` is already imported before ``immobilus``, a ``RuntimeError`` will be raised::
+
+      RuntimeError: immobilus must be imported before datetime.
+      Please ensure that `import immobilus` comes before any imports of `datetime` or modules that import it.
+
 For example, if you use
 `pytest <https://pypi.python.org/pypi/pytest>`__, you could add
 ``import immobilus`` into your root ``conftest.py`` file.
