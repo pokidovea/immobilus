@@ -3,7 +3,13 @@
 [![Download from PyPI](https://img.shields.io/pypi/v/immobilus.svg)](https://pypi.python.org/pypi/immobilus)
 ![Tests](https://github.com/pokidovea/immobilus/actions/workflows/run_tests.yml/badge.svg)
 
-A simple time freezing tool for python tests. It mocks:
+**immobilus** is a lightweight and fast time management library for Python tests. Unlike solutions that perform mass monkeypatching of modules, immobilus intercepts the time source early at import time, adding virtually no runtime overhead even in large test suites.
+
+The library allows you not only to freeze time, but also to control its flow: start time from a given point (`tick=True`), shift it forward (`shift()`), or instantly jump to a specific moment (`jump()`). This makes it a convenient tool for testing time-dependent logic — TTL, expiration, retry/backoff, schedulers, and other time-sensitive systems.
+
+The primary goal of immobilus is to provide deterministic and fast tests, especially in large projects where traditional libraries can significantly slow down execution due to complex monkeypatching.
+
+It mocks:
 * `datetime.date.today()`
 * `datetime.datetime.now()`
 * `datetime.datetime.utcnow()`
