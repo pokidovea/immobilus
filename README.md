@@ -1,6 +1,6 @@
 # immobilus
 
-[![Download from PyPI](https://img.shields.io/pypi/v/immobilus.svg)](https://pypi.python.org/pypi/immobilus)
+[![Download from PyPI](https://img.shields.io/pypi/v/immobilus)](https://pypi.python.org/pypi/immobilus)
 ![Tests](https://github.com/pokidovea/immobilus/actions/workflows/run_tests.yml/badge.svg)
 
 **immobilus** is a lightweight and fast time management library for Python tests. Unlike solutions that perform mass monkeypatching of modules, immobilus intercepts the time source early at import time, adding virtually no runtime overhead even in large test suites.
