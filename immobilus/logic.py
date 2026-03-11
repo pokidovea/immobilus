@@ -378,7 +378,7 @@ class immobilus:
         else:
             self._token_tick = _TICK_START.set(None)
 
-        return self.time_to_freeze
+        return FakeDatetime.from_datetime(new_time)
 
     def stop(self):
         if self._token_time is not None:
