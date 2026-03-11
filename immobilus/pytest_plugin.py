@@ -19,7 +19,5 @@ def _immobilus_marker(request):
 
     args = marker.args
     kwargs = marker.kwargs
-    freezer = immobilus(*args, **kwargs)
-    freezer.start()
-    yield
-    freezer.stop()
+    with immobilus(*args, **kwargs):
+        yield

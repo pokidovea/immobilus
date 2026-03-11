@@ -1,5 +1,12 @@
 Immobilus Changelog
 ===================
+2.0.1
+-----
+* Remove Python 2 compatibility shim (`try/except import copy_reg`); use `import copyreg` directly
+* Replace `assert` with explicit `TypeError` in `FakeDatetime.now()` for invalid `tz` argument
+* `immobilus.start()` now always returns a `FakeDatetime` instead of the raw `time_to_freeze` value (which could be a string)
+* Refactor pytest fixture to use `with immobilus(...): yield` instead of manual `start()`/`stop()` calls
+
 2.0.0
 -----
 * Add thread safety and async context isolation using `ContextVar` for per-thread/context time freezing

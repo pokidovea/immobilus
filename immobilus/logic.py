@@ -9,10 +9,7 @@ from functools import wraps
 
 from dateutil import parser
 
-try:
-    import copy_reg as copyreg
-except ImportError:
-    import copyreg
+import copyreg
 
 _TIME_TO_FREEZE: ContextVar = ContextVar('time_to_freeze', default=None)
 _TZ_OFFSET: ContextVar = ContextVar('tz_offset', default=0)
@@ -200,9 +197,9 @@ class FakeDatetime(datetime, metaclass=DatetimeMeta):
 
     @classmethod
     def utcnow(cls):
-        TIME_TO_FREEZE = _get_time_to_freeze()
-        if TIME_TO_FREEZE:
-            _datetime = TIME_TO_FREEZE
+        time_to_freeze = _get_time_to_freeze()
+        if time_to_freeze:
+            _datetime = time_to_freeze
         else:
             if sys.version_info >= (3, 12):
                 _datetime = datetime.now(timezone.utc).replace(tzinfo=None)
@@ -213,13 +210,15 @@ class FakeDatetime(datetime, metaclass=DatetimeMeta):
 
     @classmethod
     def now(cls, tz=None):
-        assert tz is None or isinstance(tz, tzinfo)
-        TIME_TO_FREEZE = _get_time_to_freeze()
-        if TIME_TO_FREEZE:
+        if tz is not None and not isinstance(tz, tzinfo):
+            raise TypeError('tz argument must be a tzinfo subclass, got: ' + repr(type(tz)))
+
+        time_to_freeze = _get_time_to_freeze()
+        if time_to_freeze:
             if tz:
-                _datetime = TIME_TO_FREEZE.replace(tzinfo=utc).astimezone(tz)
+                _datetime = time_to_freeze.replace(tzinfo=utc).astimezone(tz)
             else:
-                _datetime = TIME_TO_FREEZE + timedelta(hours=_get_tz_offset())
+                _datetime = time_to_freeze + timedelta(hours=_get_tz_offset())
         else:
             _datetime = datetime.now(tz=tz)
 
@@ -379,7 +378,7 @@ class immobilus:
         else:
             self._token_tick = _TICK_START.set(None)
 
-        return self.time_to_freeze
+        return FakeDatetime.from_datetime(new_time)
 
     def stop(self):
         if self._token_time is not None:
