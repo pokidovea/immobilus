@@ -9,10 +9,7 @@ from functools import wraps
 
 from dateutil import parser
 
-try:
-    import copy_reg as copyreg
-except ImportError:
-    import copyreg
+import copyreg
 
 _TIME_TO_FREEZE: ContextVar = ContextVar('time_to_freeze', default=None)
 _TZ_OFFSET: ContextVar = ContextVar('tz_offset', default=0)
